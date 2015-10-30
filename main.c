@@ -12,6 +12,7 @@ int main(void)
     BuzzerBufferAddTone(&mouse->buzzer, 800, 200); 
     BuzzerBufferAddTone(&mouse->buzzer, 1600, 200);
     BuzzerBufferAddTone(&mouse->buzzer, 800, 200);
+
     while(1==1);
 
     return 0;

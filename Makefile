@@ -1,7 +1,7 @@
 # Sources
 
 SRCS = main.c stm32f4xx_it.c system_stm32f4xx.c syscalls.c utils.c
-SRCS += boot/*.c mouse/*.c mouse/buzzer/*.c mouse/feedback/*.c mouse/motionprofile/*.c
+SRCS += boot/*.c
 
 # Project name
 
@@ -63,11 +63,12 @@ all: lib proj
 
 lib:
 	$(MAKE) -C stm32f4/lib FLOAT_TYPE=$(FLOAT_TYPE)
+	$(MAKE) -C mouse FLOAT_TYPE=$(FLOAT_TYPE)
 
 proj: 	$(OUTPATH)/$(PROJ_NAME).elf
 
 $(OUTPATH)/$(PROJ_NAME).elf: $(SRCS)
-	$(CC) $(CFLAGS) $^ -o $@ -Lstm32f4/lib -lstm32f4 -lm
+	$(CC) $(CFLAGS) $^ -o $@ -Lstm32f4/lib -lstm32f4 -Lmouse -lmouse -lm
 	$(OBJCOPY) -O ihex $(OUTPATH)/$(PROJ_NAME).elf $(OUTPATH)/$(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(OUTPATH)/$(PROJ_NAME).elf $(OUTPATH)/$(PROJ_NAME).bin
 
