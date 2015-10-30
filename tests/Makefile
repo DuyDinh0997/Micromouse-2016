@@ -30,4 +30,5 @@ all:
 	gcc -o test2 $(CFLAGS) $(SRCS2) -lm
 clean:
 	rm -f *.o
-
+	rm -f test1
+	rm -f test2
