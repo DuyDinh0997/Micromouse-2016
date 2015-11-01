@@ -36,8 +36,6 @@ char MoveGenGetNextMove(Maze* this, int x, int y, Compass forwardDir)
     int isWallRight = MazeHasAWallRelative(this, x, y, forwardDir, RIGHT);
     int isWallBack = MazeHasAWallRelative(this, x, y, forwardDir, BACK);
 
-    printf("IS WALL = %d %d %d %d\n", isWallFront, isWallLeft, isWallRight, isWallBack);
-
     MazeCell* forwardCell;
     MazeCell* backCell;
     MazeCell* leftCell;

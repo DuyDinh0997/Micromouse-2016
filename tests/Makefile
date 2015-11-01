@@ -17,7 +17,7 @@ ROOT=$(shell pwd)
 
 CFLAGS += -I. -I../boot -I../mouse  
 CFLAGS += -I../mouse/feedback -I../mouse/motionprofile
-CFLAGS += -I../maze/algorithm -I../maze/globals -I../maze/moveGen
+CFLAGS += -I../maze/algorithm -I../maze/globals -I../maze/generators
 CFLAGS += -D FAKE_MICROMOUSE
 
 OBJS = $(SRCS:.c=.o)

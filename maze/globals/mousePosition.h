@@ -12,4 +12,8 @@ typedef struct MousePosition
 
 void MousePositionInit(MousePosition* this);
 
+void MousePositionGoForward(MousePosition* this);
+void MousePositionGoBackward(MousePosition* this);
+void MousePositionRotateLeft(MousePosition* this);
+void MousePositionRotateRight(MousePosition* this);
 #endif
