@@ -48,5 +48,8 @@ typedef struct TrapProfile
     int willReachMaxVelocity;
 } TrapProfile;
 
+void TrapProfileReset(TrapProfile* this, float startVelocity, float maxVelocity, float endVelocity, float acceleration, float targetDistance);
+double TrapProfileUpdate(TrapProfile*, float, float, float);
+
  #endif
 

@@ -18,11 +18,21 @@
 
 double TrapProfileGetExchangeTime(TrapProfile* this);
 
-void TrapProfileReset(TrapProfile* this)
+void TrapProfileReset(
+    TrapProfile* this, 
+    float startVelocity, float maxVelocity, float endVelocity, 
+    float acceleration, float targetDistance)
 {
     this->currentMode = MODE_UNSET;
     this->elaspedTime = 0;
     this->startPosition = 0;
+
+    this->acceleration = acceleration;
+    this->deceleration = -acceleration;
+    this->startVelocity = startVelocity;
+    this->maxVelocity = maxVelocity;
+    this->exitVelocity = endVelocity;
+    this->targetDistance = targetDistance;
 
     float dir = 1 - 2*(this->startVelocity > this->maxVelocity);
 

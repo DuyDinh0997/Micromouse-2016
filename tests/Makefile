@@ -1,8 +1,5 @@
 # Sources
-
-LIBSRCS = ../mouse/*/*.c
-SRCS = test1.c $(LIBSRCS)
-SRCS2 = test2.c $(LIBSRCS)
+SRCS = ../maze/*/*.c 
 
 # Project name
 
@@ -20,15 +17,17 @@ ROOT=$(shell pwd)
 
 CFLAGS += -I. -I../boot -I../mouse  
 CFLAGS += -I../mouse/feedback -I../mouse/motionprofile
+CFLAGS += -I../maze/algorithm -I../maze/globals
+CFLAGS += -D FAKE_MICROMOUSE
 
 OBJS = $(SRCS:.c=.o)
 
 ###################################################
 
 all: 
-	gcc -o test1 $(CFLAGS) $(SRCS) -lm
-	gcc -o test2 $(CFLAGS) $(SRCS2) -lm
+	#gcc -o stacktest $(CFLAGS) stacktest.c $(SRCS) -lm
+	gcc -o mazetest $(CFLAGS) mazetest.c $(SRCS) -lm
+	#gcc -o motion $(CFLAGS) motionprofile.c $(SRCS) -lm
+
 clean:
 	rm -f *.o
-	rm -f test1
-	rm -f test2
