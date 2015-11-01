@@ -17,7 +17,7 @@ ROOT=$(shell pwd)
 
 CFLAGS += -I. -I../boot -I../mouse  
 CFLAGS += -I../mouse/feedback -I../mouse/motionprofile
-CFLAGS += -I../maze/algorithm -I../maze/globals
+CFLAGS += -I../maze/algorithm -I../maze/globals -I../maze/moveGen
 CFLAGS += -D FAKE_MICROMOUSE
 
 OBJS = $(SRCS:.c=.o)
@@ -31,3 +31,4 @@ all:
 
 clean:
 	rm -f *.o
+	find -type f -executable -delete

@@ -94,6 +94,100 @@ int MazeHasAWall(Maze* this, int x, int y, Compass compass)
     return 0;
 }
 
+int MazeHasAWallRelative(Maze* this, int x, int y, Compass forwardDir, Direction relativeDir)
+{
+    // Facing up
+    if (forwardDir == NORTH)
+    {
+        if (relativeDir == FORWARD) return MazeHasAWall(this, x, y, NORTH);
+        else if (relativeDir == RIGHT) return MazeHasAWall(this, x, y, EAST);
+        else if (relativeDir == LEFT) return MazeHasAWall(this, x, y, WEST);
+        else if (relativeDir == BACK) return MazeHasAWall(this, x, y, SOUTH);
+    }
+    // Facing down
+    else if (forwardDir == SOUTH)
+    {
+        if (relativeDir == FORWARD) return MazeHasAWall(this, x, y, SOUTH);
+        else if (relativeDir == RIGHT) return MazeHasAWall(this, x, y, WEST);
+        else if (relativeDir == LEFT) return MazeHasAWall(this, x, y, EAST);
+        else if (relativeDir == BACK) return MazeHasAWall(this, x, y, NORTH);
+    }
+    // Facing right
+    else if (forwardDir == EAST)
+    {
+        if (relativeDir == FORWARD) return MazeHasAWall(this, x, y, EAST);
+        else if (relativeDir == RIGHT) return MazeHasAWall(this, x, y, SOUTH);
+        else if (relativeDir == LEFT) return MazeHasAWall(this, x, y, NORTH);
+        else if (relativeDir == BACK) return MazeHasAWall(this, x, y, WEST);
+    }
+    // Facing left
+    else if (forwardDir == WEST)
+    {
+        if (relativeDir == FORWARD) return MazeHasAWall(this, x, y, WEST);
+        else if (relativeDir == RIGHT) return MazeHasAWall(this, x, y, NORTH);
+        else if (relativeDir == LEFT) return MazeHasAWall(this, x, y, SOUTH);
+        else if (relativeDir == BACK) return MazeHasAWall(this, x, y, EAST);
+    }
+
+    return 0;
+}
+
+// Returns a pointer to the cell adjacent to the current one.
+MazeCell* MazeGetAdjacentCell(Maze* this, int x, int y, Compass compass)
+{
+    if (compass == NORTH && y > 0)
+        return MazeGetCell(this, x, y-1);
+
+    else if (compass == SOUTH && y < 15)
+        return MazeGetCell(this, x, y+1);
+
+    else if (compass == WEST && x > 0)
+        return MazeGetCell(this, x-1, y);
+
+    else if (compass == EAST && x < 15)
+        return MazeGetCell(this, x+1, y);
+
+    return 0;
+}
+
+MazeCell* MazeGetRelativeAdjacentCell(Maze* this, int x, int y, Compass forwardDir, Direction relativeDir)
+{
+    // Facing up
+    if (forwardDir == NORTH)
+    {
+        if(relativeDir == FORWARD) return MazeGetAdjacentCell(this, x, y, NORTH);
+        else if(relativeDir == RIGHT) return MazeGetAdjacentCell(this, x, y, EAST);
+        else if(relativeDir == LEFT) return MazeGetAdjacentCell(this, x, y, WEST);
+        else if(relativeDir == BACK) return MazeGetAdjacentCell(this, x, y, SOUTH);
+    }
+    // Facing down
+    else if (forwardDir == SOUTH)
+    {
+        if(relativeDir == FORWARD) return MazeGetAdjacentCell(this, x, y, SOUTH);
+        else if(relativeDir == RIGHT) return MazeGetAdjacentCell(this, x, y, WEST);
+        else if(relativeDir == LEFT) return MazeGetAdjacentCell(this, x, y, EAST);
+        else if(relativeDir == BACK) return MazeGetAdjacentCell(this, x, y, NORTH);
+    }
+    // Facing right
+    else if (forwardDir == EAST)
+    {
+        if(relativeDir == FORWARD) return MazeGetAdjacentCell(this, x, y, EAST);
+        else if(relativeDir == RIGHT) return MazeGetAdjacentCell(this, x, y, SOUTH);
+        else if(relativeDir == LEFT) return MazeGetAdjacentCell(this, x, y, NORTH);
+        else if(relativeDir == BACK) return MazeGetAdjacentCell(this, x, y, WEST);
+    }
+    // Facing left
+    else if (forwardDir == WEST)
+    {
+        if(relativeDir == FORWARD) return MazeGetAdjacentCell(this, x, y, WEST);
+        else if(relativeDir == RIGHT) return MazeGetAdjacentCell(this, x, y, NORTH);
+        else if(relativeDir == LEFT) return MazeGetAdjacentCell(this, x, y, SOUTH);
+        else if(relativeDir == BACK) return MazeGetAdjacentCell(this, x, y, EAST);
+    }
+
+    return 0;
+}
+
 #ifdef FAKE_MICROMOUSE
 #include <stdio.h>
 

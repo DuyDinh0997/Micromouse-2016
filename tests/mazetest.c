@@ -2,6 +2,7 @@
 #include "maze.h"
 #include "floodFill.h"
 #include "robotState.h"
+#include "moveGen.h"
 
 int main()
 {
@@ -12,6 +13,7 @@ int main()
     MazePrint(&maze, 0, 0);
 
     RobotState state;
+    state.pos.forwardDirection = SOUTH;
     state.targetXmin = 7;
     state.targetYmin = 7;
     state.targetXmax = 8;
@@ -23,9 +25,11 @@ int main()
     
     SimpleFloodFillSolve(&floodFill);
 
+    char nextMove = MoveGenGetNextMove(&maze, state.pos.x, state.pos.y, state.pos.forwardDirection); 
+
+    printf("Next Move = %c\n", nextMove);
     MazePrint(&maze, 0, 0);
-    
-        
+   
     printf("Done!\n");
     return 0;
 }
