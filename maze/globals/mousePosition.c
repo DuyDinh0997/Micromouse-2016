@@ -1,9 +1,11 @@
 #include "mousePosition.h"
 
-void MousePositionInit(MousePosition* this)
+void MousePositionInit( 
+    MousePosition* this, Compass forwardDir, int startingX, int startingY)
 {
-    this->forwardDirection = SOUTH;
-    this->x = this->y = 0;
+    this->forwardDirection = forwardDir;
+    this->x = startingX; 
+    this->y = startingY;
 }
 
 void MousePositionGoForward(MousePosition* this)

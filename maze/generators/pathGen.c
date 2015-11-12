@@ -34,6 +34,7 @@ void PathGenOrtho(Maze* maze, RobotState* state, char* ortho)
         char nextMove = MoveGenGetNextMove(maze, 
             tmpPos.x, tmpPos.y, tmpPos.forwardDirection);
 
+        *ortho++ = nextMove;
         executeMove(nextMove, &tmpPos); 
 
         // Break the loop if the mouse reached the desired location.
@@ -41,4 +42,6 @@ void PathGenOrtho(Maze* maze, RobotState* state, char* ortho)
             tmpPos.y >= state->targetYmin && tmpPos.y <= state->targetYmax) 
             break;
     } 
+
+    *ortho = 0;
 }

@@ -10,7 +10,7 @@ typedef struct MousePosition
     Compass forwardDirection;
 } MousePosition;
 
-void MousePositionInit(MousePosition* this);
+void MousePositionInit(MousePosition* this, Compass forwardDir, int startingX, int startingY);
 
 void MousePositionGoForward(MousePosition* this);
 void MousePositionGoBackward(MousePosition* this);
