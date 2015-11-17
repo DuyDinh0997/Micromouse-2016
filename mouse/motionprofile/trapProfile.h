@@ -39,17 +39,14 @@ typedef struct TrapProfile
 
     int currentMode; 
 
-    float timeWhenStartingToDecelerating;
-    
-    float exchangeTime;
-    float velocityAtExchange;
-    
-    float startPosition;
-    int willReachMaxVelocity;
+    float decelerationLength;
+    float decelMaxVelocity; 
+    float currentVelocity;
+
+    int timeDuringDecel;
 } TrapProfile;
 
 void TrapProfileReset(TrapProfile* this, float startVelocity, float maxVelocity, float endVelocity, float acceleration, float targetDistance);
-double TrapProfileUpdate(TrapProfile*, float, float, float);
+float TrapProfileUpdate(TrapProfile*, float, float, float);
 
- #endif
-
+#endif

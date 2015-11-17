@@ -1,5 +1,6 @@
-CC=arm-none-eabi-gcc
-AR=arm-none-eabi-ar
+LDIR=/usr/local/gcc-arm-none-eabi-4_9-2015q3/bin/
+CC=$(LDIR)arm-none-eabi-gcc
+AR=$(LDIR)arm-none-eabi-ar
 
 ###################################################
 

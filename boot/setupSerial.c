@@ -19,7 +19,7 @@
 static void startSerialDMA();
 
 // Output Stuff
-CircularBuffer* serialOutput;
+CircularBuffer serialOutput;
 
 // Input Stuff
 CircularBuffer serialInput;
@@ -30,7 +30,7 @@ callbackFunction returnStringFunction;
 // The main entry point for the Serial initiation
 void Config_SerialInit(int Baud)
 {
-	CircularBufferInit(serialOutput);
+	CircularBufferInit(&serialOutput);
 	CircularBufferInit(&serialInput);
 	returnStringFunction = 0;
 
@@ -41,13 +41,13 @@ void Config_SerialInit(int Baud)
 // Save a char to editingBuffer
 void Config_SerialSaveRawChar(char num)
 {
-	CircularBufferAdd(serialOutput, num);
+	CircularBufferAdd(&serialOutput, num);
 	//USART_TypeDef* USARTx = USART1;
 
 	//while(!(USARTx->SR & 0x00000040) );
 	//USART_SendData(USARTx, num);
 
-	if(serialOutput->streaming == 0)
+	if(serialOutput.streaming == 0)
 	{
 		Config_SerialForceBuffer();
 	}
@@ -57,9 +57,9 @@ void Config_SerialSaveRawChar(char num)
 //  even if the buffer isn't full!
 void Config_SerialForceBuffer()
 {
-	if(serialOutput->streaming == 0)
+	if(serialOutput.streaming == 0)
 	{
-		serialOutput->streaming = 1;
+		serialOutput.streaming = 1;
 		startSerialDMA();
 	}
 }
@@ -142,12 +142,12 @@ void Config_SerialInitPeripherals(int Baud)
 // Starts the DMA process on our processor
 static void startSerialDMA()
 {
-	int length = CircularBufferGetMemoryLength(serialOutput);
+	int length = CircularBufferGetMemoryLength(&serialOutput);
 
 	if(length > 0)
 	{
-		char* pointer = CircularBufferGetMemoryStartPointer(serialOutput);
-		CircularBufferIncrementBy(serialOutput, length);
+		char* pointer = CircularBufferGetMemoryStartPointer(&serialOutput);
+		CircularBufferIncrementBy(&serialOutput, length);
 
 		DMA_DeInit(DMA2_Stream7);
 
@@ -173,14 +173,14 @@ void DMA2_Stream7_IRQHandler(void)
 	// DMA 2 Stream 7 Completion 
 	if (DMA_GetITStatus(DMA2_Stream7, DMA_IT_TCIF7))
 	{		
-		if(CircularBufferSize(serialOutput) > 0)
+		if(CircularBufferSize(&serialOutput) > 0)
 		{
-			serialOutput->streaming = 1;
+			serialOutput.streaming = 1;
 			startSerialDMA();
 		}
 		else
 		{
-			serialOutput->streaming = 0;
+			serialOutput.streaming = 0;
 		}
 
 		// Clear DMA Stream Transfer Complete interrupt pending bit 

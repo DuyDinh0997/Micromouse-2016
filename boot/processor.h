@@ -22,7 +22,6 @@ typedef struct Processor
     void (*serialSendDouble)(double);
     
     void (*setBuzzerFrequency)(int);        
-
     int (*getSensor)(int);
     void (*resetSensor)(int);
     void (*setMotor)(int, int);

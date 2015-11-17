@@ -2,7 +2,7 @@
 #include "trapProfile.h"
 #include <math.h>
 
-typedef struct TrapProfileInfo
+/*typedef struct TrapProfileInfo
 {
     int decelerationTime; 
     double decelMaxVelocity;
@@ -72,21 +72,38 @@ int shouldDecelerate(
     
     return (result > 0) ? 1 : 0;
 }
-
+*/
 int main()
 {
     printf("Starting Motion Profile Test\n"); 
 
-    double pos = 0;
-    double velocity = 0;
-    double accel = 1.435;
-    double maxVelocity = 7.0;
-    double velocityExit = 1.0;
-    double targetDistance = 100;
+    float pos = 0;
+    float velocity = 0;
+    float accel = 1.0;
+    float startVelocity = 8;
+    float maxVelocity = 5.0;
+    float exitVelocity = 0.0;
+    float targetDistance = 90;
+
     int time = 0;
-    TrapProfileInfo info;
+    //TrapProfileInfo info;
+
+    TrapProfile prof;
+
+    TrapProfileReset(&prof, 
+        startVelocity, maxVelocity, exitVelocity, accel, targetDistance); 
 
     while (1)
+    {
+        printf("Time = %d, Pos = %lf, velocity = %lf\n", time, pos, velocity);
+        if (prof.currentMode == MODE_FINISHED) break;
+    
+        velocity = TrapProfileUpdate(&prof, pos, velocity, 1); 
+        pos += velocity;
+        time++;
+    } 
+
+    /*while (1)
     {
         printf("Time = %d, Pos = %lf, velocity = %lf\n", time, pos, velocity);
 
@@ -125,73 +142,8 @@ int main()
         pos += velocity;
         time++;
     } 
-    
+    */ 
     printf("Done!\n");
-    //calculateTrapInfo(5, 13, 1, 2);
 
     return 0;
-
-    /*while (1)
-    {
-        if (shouldStartToDecel(
-            time, targetDistance - pos, velocityExit, accel) == 1) 
-            break;
-
-        velocity += accel;  
-        pos += velocity;
-        time++; 
-
-        printf("Pos = %lf, Vel = %lf, Time = %d\n\n", pos, velocity, time);
-    }
-        
-    printf("Pos = %lf, Vel = %lf, Time = %d\n\n", pos, velocity, time);
-
-    printf("SWITCHING\n");
-
-    int steptime = getDiscreteTimeNeeded(velocity + accel, velocityExit, accel);   
-    double Vco = calculateVcutoff(steptime, targetDistance - pos, velocityExit, accel);
-
-    printf("StepTime = %d, Vco = %lf\n", steptime, Vco);
-
-    if (Vco <= 1)
-    {
-        printf("A\n");
-        velocity += (1-Vco); 
-
-        while (1)
-        {
-            // New Values
-            printf("Pos = %lf, Vel = %lf, Time = %d\n\n", pos, velocity, time);
-            if (velocity < velocityExit) break;
-
-            // Wait here for one time period
-
-            // Update values here
-            pos+=velocity;
-            velocity-=accel;
-            time++;
-
-
-        }
-    }
-    else
-    {
-        double Vco = calculateVcutoff(steptime-1, targetDistance - pos, velocityExit, accel);
-        printf("Vco = %lf, st = %d\n", Vco, steptime);
-        velocity += Vco;
-
-        while (1)
-        {
-            pos+=velocity;
-            velocity-=accel;
-            time++;
-            printf("Pos = %lf, Vel = %lf, Time = %d\n\n", pos, velocity, time);
-            
-            if (velocity < 0) break;
-        }    
-    }
-
-    printf("Pos = %lf, Vel = %lf, Time = %d\n\n", pos, velocity, time);
-
-    return 0; */
 }

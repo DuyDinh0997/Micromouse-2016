@@ -44,8 +44,9 @@ void MouseInitiate()
 
     proc->setupGPIO();
     proc->setupMotors();
-    proc->setScreenWithString("Menu"); 
     proc->setupSensors();
+    proc->setupSerial(57600);
+    proc->setScreenWithString("Menu");
 
     PIDSetup(&mouse->tmppid, 0.007, 0.0, 0.002); 
     PIDSetup(&mouse->angpid, 0.0002, 0.0, 0.0);
@@ -117,16 +118,16 @@ void MouseUpdate()
         proc->setLED(LED_LEFT_3, LED_OFF);
     }
 
-    if (50000 - leftSensor > 40000)
-    {
+    //if (50000 - leftSensor > 40000)
+    //{
         proc->setMotor(LEFT_MOTOR, 0);
         proc->setMotor(RIGHT_MOTOR, 0);
-    }
+    /*}
     else
     {
         proc->setMotor(LEFT_MOTOR, feedback - feedback2);
         proc->setMotor(RIGHT_MOTOR, feedback + feedback2); 
-    }
+    }*/
 
     // Handle Buzzer Tones
     BuzzerTone* tone = BuzzerBufferGetCurrent(&mouse->buzzer);

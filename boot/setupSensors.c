@@ -1,5 +1,6 @@
 #include "setupSensors.h"
 #include "setupSerialOperations.h"
+
 // Functions that shouldn't be used outside of this file
 static void SensorTIM();
 static void SensorRCC();

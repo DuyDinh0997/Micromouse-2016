@@ -49,6 +49,7 @@ int CircularBufferAdd(CircularBuffer* buffer, char value)
 	{
 		return 0;
 	}
+
 	buffer->buffer[buffer->endPos] = value;
 	buffer->endPos++;
 

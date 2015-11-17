@@ -1,7 +1,7 @@
 # Sources
 
 SRCS = main.c stm32f4xx_it.c system_stm32f4xx.c syscalls.c utils.c
-SRCS += boot/*.c
+SRCS += boot/*.c mouse/menu/*.c
 
 # Project name
 
@@ -22,10 +22,10 @@ endif
 endif
 
 ###################################################
-
-CC=arm-none-eabi-gcc
-OBJCOPY=arm-none-eabi-objcopy
-SIZE=arm-none-eabi-size
+LDIR=/usr/local/gcc-arm-none-eabi-4_9-2015q3/bin/
+CC=$(LDIR)arm-none-eabi-gcc
+OBJCOPY=$(LDIR)arm-none-eabi-objcopy
+SIZE=$(LDIR)arm-none-eabi-size
 
 CFLAGS  = -std=gnu99 -g -O0 -Wall -Tstm32f4/stm32_flash.ld
 CFLAGS += -mlittle-endian -mthumb -mthumb-interwork -nostartfiles -mcpu=cortex-m4
@@ -48,7 +48,7 @@ ROOT=$(shell pwd)
 
 CFLAGS += -I. -Istm32f4 -Istm32f4/lib -Istm32f4/lib/inc -Iboot -Imouse 
 CFLAGS += -Istm32f4/lib/inc/core -Istm32f4/lib/inc/peripherals  
-CFLAGS += -Imouse/feedback -Imouse/motionprofile
+CFLAGS += -Imouse/feedback -Imouse/motionprofile -Imouse/menu
 
 SRCS += stm32f4/lib/startup_stm32f4xx.s # add startup file to build
 
