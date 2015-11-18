@@ -5,20 +5,30 @@
 #include "buzzer/buzzer.h"
 #include "feedback/pid.h"
 #include "menu/menuStrip.h"
+#include "motion/updateType.h"
+#include "motionprofile/trapProfile.h"
 
 typedef struct Mouse
 {
     BuzzerBuffer buzzer;
     Menu* menu;
+    void (*motionType)(void);
 
-    PID tmppid;
-    PID angpid;
+    TrapProfile* profile;
+
+    // TODO: These should be abstracted somewhere else probably
+    int encoderVelocityLeft;
+    int encoderVelocityRight;
+
+    PID motorPIDLeft;
+    PID motorPIDRight;
    
     float degrees; 
     float gyroCalibration;
     long time;
 
     void (*initiate)(); 
+    void (*calibrateGyro)();
 } Mouse;
 
 Mouse* SingletonMouse();

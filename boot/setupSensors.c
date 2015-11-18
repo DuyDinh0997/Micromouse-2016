@@ -276,16 +276,16 @@ void ADC_IRQHandler()
 
 			Sensors[counter].data = sum;
 
-			if (counter == 0)
+			/*if (counter == 0)
 			{
 				lc++;
 				if (lc % 2 == 0)
 				{
-					//Config_SerialSaveIntegerAsString(Sensors[counter].data);
-					//Config_SerialSaveRawChar('\n');
-					//Config_SerialSaveRawChar('\r');
+					Config_SerialSaveIntegerAsString(Sensors[counter].data);
+					Config_SerialSaveRawChar('\n');
+					Config_SerialSaveRawChar('\r');
 				}
-			}
+			}*/
 
 			counter++;
 			if (counter > 6)

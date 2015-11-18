@@ -28,13 +28,14 @@ CFLAGS += -msoft-float
 endif
 
 CFLAGS += -ffreestanding -nostdlib
-CFLAGS += -Ibuzzer -Ifeedback -I../boot -Imotionprofile
+CFLAGS += -Ibuzzer -Ifeedback -I../boot -Imotionprofile -Imotion -I.
 
 #SRCS  = stm32f4_discovery.c
 SRCS = mouse.c 
 SRCS += buzzer/buzzer.c 
 SRCS += feedback/pid.c 
 SRCS += motionprofile/trapProfile.c
+SRCS += motion/updateType.c
 
 OBJS = $(SRCS:.c=.o)
 

@@ -39,6 +39,8 @@ typedef struct TrapProfile
 
     int currentMode; 
 
+    int startingPosition;
+
     float decelerationLength;
     float decelMaxVelocity; 
     float currentVelocity;

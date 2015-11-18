@@ -41,11 +41,6 @@ void executeMainMenu()
 			proc->setScreenWithString(MenuGetText(mouse->menu));
 			BuzzerBufferAddTone(&mouse->buzzer, 1600, 20);
 			BuzzerBufferAddTone(&mouse->buzzer, 0, 20);
-			proc->setLED(LED_RIGHT_1, LED_ON);
-		}
-		else
-		{
-			proc->setLED(LED_RIGHT_1, LED_OFF);
 		}
 
 		if (proc->getSensor(SENSOR_BUTTON_1) == 1 )
@@ -67,6 +62,16 @@ void executeMainMenu()
 	}
 }
 
+void waitForHand()
+{
+    Processor* proc = SingletonProcessor();
+
+	while (proc->getSensor(SENSOR_LEFT_1) < 1200*32)
+	{
+		// Do nothing, just wait.
+	}
+}
+
 int main(void) 
 {
     Mouse* mouse = SingletonMouse();
@@ -74,6 +79,16 @@ int main(void)
     mouse->initiate();
     BuzzerBufferAddTone(&mouse->buzzer, 800, 200); 
     executeMainMenu();
+
+    waitForHand();
+    mouse->calibrateGyro();
+
+    // Set Motion Profile.
+    TrapProfile tmpProfile;
+    TrapProfileReset(&tmpProfile, 0, 75, 0, 4, 75000);
+    mouse->profile = &tmpProfile;
+
+    mouse->motionType = updateTypeMoveForward;
 
     while(1==1);
 

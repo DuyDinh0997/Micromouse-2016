@@ -48,7 +48,7 @@ ROOT=$(shell pwd)
 
 CFLAGS += -I. -Istm32f4 -Istm32f4/lib -Istm32f4/lib/inc -Iboot -Imouse 
 CFLAGS += -Istm32f4/lib/inc/core -Istm32f4/lib/inc/peripherals  
-CFLAGS += -Imouse/feedback -Imouse/motionprofile -Imouse/menu
+CFLAGS += -Imouse/feedback -Imouse/motionprofile -Imouse/menu -Imouse/motion
 
 SRCS += stm32f4/lib/startup_stm32f4xx.s # add startup file to build
 
@@ -79,5 +79,5 @@ clean:
 	rm -f $(OUTPATH)/$(PROJ_NAME).bin
 	rm -f something.swp `find -name "*.swp"` # Delete all ".swp" files
 	rm -f something.~ `find -name "*~"` # Delete all "~" files
-	$(MAKE) clean -C stm32f4/lib # Remove this line if you don't want to clean the libs as well
+	#$(MAKE) clean -C stm32f4/lib # Remove this line if you don't want to clean the libs as well
 	

@@ -79,11 +79,11 @@ int main()
 
     float pos = 0;
     float velocity = 0;
-    float accel = 1.0;
-    float startVelocity = 8;
-    float maxVelocity = 5.0;
-    float exitVelocity = 0.0;
-    float targetDistance = 90;
+    float accel = 4.0;
+    float startVelocity = 0;
+    float maxVelocity = 75;
+    float exitVelocity = 75;
+    float targetDistance = 75000;
 
     int time = 0;
     //TrapProfileInfo info;
