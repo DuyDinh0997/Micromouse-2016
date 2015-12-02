@@ -1,6 +1,8 @@
 #ifndef __PROCESSOR_H__
 #define __PROCESSOR_H__
 
+typedef void (*callbackFunction)(char* string);
+
 typedef struct Processor
 {
     /**
@@ -20,7 +22,8 @@ typedef struct Processor
     void (*serialSendRawInt)(int);
     void (*serialSendInt)(int);
     void (*serialSendDouble)(double);
-    
+    void (*serialSendChar)(char);
+    void (*serialSetRXCallback)(callbackFunction func);
     void (*setBuzzerFrequency)(int);        
     int (*getSensor)(int);
     void (*resetSensor)(int);
@@ -29,6 +32,7 @@ typedef struct Processor
     void (*writeMemoryWithString)(char*);
     void (*writeMemoryWithChar)(char);
     void (*writeMemoryWithInt)(int);
+    void (*eraseMemory)();
 
     void (*callback)();
 } Processor;

@@ -1,6 +1,9 @@
 #include "setupSensors.h"
 #include "setupSerialOperations.h"
 
+// TODO: Remove this after debugging.
+#include "setupFlash.h"
+
 // Functions that shouldn't be used outside of this file
 static void SensorTIM();
 static void SensorRCC();
@@ -257,7 +260,7 @@ void ADC_IRQHandler()
 	{
 		ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
 
-		if (_previousDataCounter > 30)
+		if (_previousDataCounter > 6)//30)
 		{
 			// Turn off the sensor pin
 			_previousData[_previousDataCounter] = ADC_GetConversionValue(ADC1);
@@ -269,22 +272,29 @@ void ADC_IRQHandler()
 
 			int i;
 			int sum = 0;
-			for (i = 0; i < 32; i++)
+			for (i = 0; i < 8/*32*/; i++)
 			{
 				sum += _previousData[i];
 			}
 
-			Sensors[counter].data = sum;
+			Sensors[counter].data = sum*4;
 
 			/*if (counter == 0)
 			{
-				lc++;
-				if (lc % 2 == 0)
+				Flash_SaveString("E,");
+				Flash_SaveInt(sum);
+
+				int highest = 0;
+				for (i = 0; i < 8; i++)
 				{
-					Config_SerialSaveIntegerAsString(Sensors[counter].data);
-					Config_SerialSaveRawChar('\n');
-					Config_SerialSaveRawChar('\r');
+					if (_previousData[i] > highest)
+						highest = _previousData[i];
 				}
+
+				Flash_SaveString(",H,");
+				Flash_SaveInt(highest);
+				Flash_SaveString("\n");
+
 			}*/
 
 			counter++;
@@ -296,8 +306,8 @@ void ADC_IRQHandler()
 		else
 		{
 			_previousData[_previousDataCounter] = ADC_GetConversionValue(ADC1);
-			_previousDataCounter++;
 			ADC_SoftwareStartConv(ADC1);
+			_previousDataCounter++;
 		}
 	}
 }

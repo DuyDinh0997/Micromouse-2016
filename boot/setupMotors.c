@@ -5,12 +5,18 @@ static void MotorTimer();
 static void MotorRCC();
 static void MotorEncoderTimer();
 
+long encPosLeft;
+long encPosRight;
+
 void Config_MotorsInit()
 {
 	MotorRCC();
 	MotorGPIO();
 	MotorTimer();
 	MotorEncoderTimer();
+
+	encPosLeft = 0;
+	encPosRight = 0;
 }
 
 static void MotorRCC()
@@ -106,29 +112,28 @@ static void MotorTimer()
 	TIM_Cmd(TIM3, ENABLE);
 }
 
+
 int32_t Config_GetRightEncoder()
 {
-	static long encPos = 0;
-	encPos += (TIM2->CNT - ENC_DEFAULT_VALUE);
+	encPosRight += (TIM2->CNT - ENC_DEFAULT_VALUE);
 	TIM2->CNT = ENC_DEFAULT_VALUE;
 
-	return encPos;
+	return encPosRight;
 }
 void Config_ResetRightEncoder()
 {
-	TIM2->CNT = ENC_DEFAULT_VALUE;
+	encPosRight = 0;
 }
 int32_t Config_GetLeftEncoder()
 {
-	static long encPos = 0;
-	encPos += (TIM5->CNT - ENC_DEFAULT_VALUE);
+	encPosLeft += (TIM5->CNT - ENC_DEFAULT_VALUE);
 	TIM5->CNT = ENC_DEFAULT_VALUE;
 
-	return encPos;
+	return encPosLeft;
 }
 void Config_ResetLeftEncoder()
 {
-	TIM5->CNT = ENC_DEFAULT_VALUE;
+	encPosLeft = 0;
 }
 
 // Sets left motor from 0 to 1000

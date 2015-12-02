@@ -14,6 +14,7 @@
  * The author can be contacted by email at jmarple@umass.edu
  */
 #include "setupGPIO.h"
+#include "../stm32f4/lib/inc/peripherals/stm32f4xx_rcc.h"
 
 void SetupGPIO()
 {

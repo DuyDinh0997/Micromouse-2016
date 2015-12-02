@@ -33,6 +33,8 @@ Mouse* SingletonMouse()
         mouse->buzzer.end = 0;
         mouse->buzzer.start = 0;
         mouse->motionType = 0;
+		mouse->motorValueLeft = 0;
+		mouse->motorValueRight = 0;
     }
 
     return mouse;
@@ -53,6 +55,10 @@ void MouseInitiate()
 
     PIDSetup(&mouse->motorPIDLeft, 0.2, 0.0, 0.0);
     PIDSetup(&mouse->motorPIDRight, 0.2, 0.0, 0.0);
+    PIDSetup(&mouse->gyroVelocityPID, 1, 0.0, 0.0);
+    PIDSetup(&mouse->gyroPositionPID, 1, 0.0, 0.0);
+
+    mouse->gyroCalibration = 0;
 
     // Everytime the processor updates every 1ms, this function is called.
     proc->callback = MouseUpdate;
@@ -68,12 +74,23 @@ void MouseCalibrateGyro()
     long thisTime = startTime;
     int lc = 0;
 
-    while(mouse->time - startTime < 200)
+    proc->setLED(LED_LEFT_2, LED_ON);
+
+    mouse->gyroCalibration = 0;
+
+    while (mouse->time - startTime < 1000)
     {
         mouse->gyroCalibration += proc->getSensor(SENSOR_GYRO);
-        lc++;
 
-        while(mouse->time <= thisTime)
+        /*proc->writeMemoryWithString("L,");
+    	proc->writeMemoryWithInt(proc->getSensor(SENSOR_GYRO));
+        proc->writeMemoryWithString("Y,");
+    	proc->writeMemoryWithInt(mouse->time);
+     	proc->writeMemoryWithString("\n");*/
+
+    	lc++;
+
+        while (mouse->time <= thisTime)
         {
 
         }
@@ -81,8 +98,13 @@ void MouseCalibrateGyro()
         thisTime++;
     }
 
-    mouse->gyroCalibration /= 200.0;
-    mouse->degrees = 0;
+    mouse->gyroCalibration /= 1000.0;
+    mouse->gyroPosition = 0;
+    proc->setLED(LED_LEFT_2, LED_OFF);
+
+	/*proc->writeMemoryWithString("C,");
+	proc->writeMemoryWithInt((int)(mouse->gyroCalibration*1000));
+	proc->writeMemoryWithString("\n");*/
 }
 
 #define ONE_DEG_CLOCKWISE 53900.0
@@ -90,56 +112,70 @@ void MouseCalibrateGyro()
 
 void MouseUpdate()
 {
-	static int previousEncoderValueLeft = 0;
-	static int previousEncoderValueRight = 0;
+	static float previousDegreesValue = 0;
 
     Processor* proc = SingletonProcessor();
     Mouse* mouse = SingletonMouse();
 
     mouse->time++;
 
+    // Get and calculate encoder based data.
     int leftEncoderPos = proc->getSensor(SENSOR_ENCODER_LEFT);
     int rightEncoderPos = proc->getSensor(SENSOR_ENCODER_RIGHT);
 
     mouse->encoderVelocityLeft =
-    		leftEncoderPos - previousEncoderValueLeft;
+    		leftEncoderPos - mouse->previousEncoderValueLeft;
 
     mouse->encoderVelocityRight =
-    		rightEncoderPos - previousEncoderValueRight;
+    		rightEncoderPos - mouse->previousEncoderValueRight;
 
-    previousEncoderValueLeft = leftEncoderPos;
-    previousEncoderValueRight = rightEncoderPos;
+    mouse->previousEncoderValueLeft = leftEncoderPos;
+    mouse->previousEncoderValueRight = rightEncoderPos;
 
+    // Get and calculate gyroscope based data.
     float changeindegrees = 
         (proc->getSensor(SENSOR_GYRO) - mouse->gyroCalibration) / ONE_DEG_CLOCKWISE;
 
-    mouse->degrees += 
-        (changeindegrees > GYRO_CUTOFF || changeindegrees < -GYRO_CUTOFF) 
-            ? changeindegrees : 0;
+    if (mouse->gyroCalibration != 0)
+    {
+		/*proc->writeMemoryWithString("T,");
+		proc->writeMemoryWithInt(proc->getSensor(SENSOR_GYRO));
+		proc->writeMemoryWithString("\n");*/
 
+    	/*proc->writeMemoryWithString("E,");
+    	proc->writeMemoryWithInt(changeindegrees*1000);
+    	proc->writeMemoryWithString("G,");
+    	proc->writeMemoryWithInt(mouse->gyroPosition*1000);
+     	proc->writeMemoryWithString("\n");*/
+
+		mouse->gyroPosition +=
+			(changeindegrees > GYRO_CUTOFF || changeindegrees < -GYRO_CUTOFF)
+				? changeindegrees : 0;
+    }
+    else
+    {
+    	mouse->gyroPosition = 0;
+    }
+
+    /*proc->serialSendString("G,");
+    proc->serialSendDouble(mouse->gyroPosition);
+    proc->serialSendString("\n");*/
+
+    mouse->gyroVelocity = mouse->gyroPosition - previousDegreesValue;
+    previousDegreesValue = mouse->gyroPosition;
+
+    // Execute some sort of motion.
     if (mouse->motionType != 0)
     {
 		proc->setLED(LED_RIGHT_1, LED_ON);
     	mouse->motionType();
     }
+    // If there is currently no motionType being executed, set motors to off.
     else
     {
 		proc->setLED(LED_RIGHT_1, LED_OFF);
         proc->setMotor(LEFT_MOTOR, 0);
         proc->setMotor(RIGHT_MOTOR, 0);
-    }
-
-    static int counter = 0;
-
-    if (++counter % 20 == 0)
-    {
-		proc->serialSendString("G,");
-		proc->serialSendInt(proc->getSensor(SENSOR_GYRO));
-		proc->serialSendString(",C,");
-		proc->serialSendDouble((double)mouse->gyroCalibration);
-		proc->serialSendString(",D,");
-		proc->serialSendDouble(mouse->degrees);
-		proc->serialSendString("\n");
     }
 
     // Handle Buzzer Tones

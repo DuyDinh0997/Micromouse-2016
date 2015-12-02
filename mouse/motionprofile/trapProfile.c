@@ -102,6 +102,40 @@ void TrapProfileGetTrapInfo(
     this->decelMaxVelocity = startVelocity;
 }
 
+PID* TrapProfileGetLeftPID(TrapProfile* this)
+{
+	if (this->currentMode == MODE_T1)
+		return this->lT1;
+
+	if (this->currentMode == MODE_T2)
+		return this->lT2;
+
+	if (this->currentMode == MODE_T3)
+		return this->lT3;
+
+	if (this->currentMode == MODE_UNSET)
+		return this->lT1;
+
+	return this->lT3;
+}
+
+PID* TrapProfileGetRightPID(TrapProfile* this)
+{
+	if (this->currentMode == MODE_T1)
+		return this->rT1;
+
+	if (this->currentMode == MODE_T2)
+		return this->rT2;
+
+	if (this->currentMode == MODE_T3)
+		return this->rT3;
+
+	if (this->currentMode == MODE_UNSET)
+		return this->rT1;
+
+	return this->rT3;
+}
+
 float TrapProfileUpdate(
     TrapProfile* this, 
     float pos, float velocity, float dT)
@@ -117,6 +151,7 @@ float TrapProfileUpdate(
             // Intentionally don't break here, continue to T1
 
         case MODE_T1:
+        case MODE_T2:
             // Current Velocity
             this->currentVelocity = 
                 this->startVelocity + this->acceleration*this->elaspedTime;
@@ -124,6 +159,7 @@ float TrapProfileUpdate(
             float tmpAccel = this->acceleration; 
             if (this->currentVelocity >= this->maxVelocity)
             {
+            	this->currentMode = MODE_T2;
                 tmpAccel = 0; 
                 this->currentVelocity = this->maxVelocity;
             }
@@ -131,6 +167,12 @@ float TrapProfileUpdate(
             if (TrapProfileShouldDecelerate(this, tmpAccel,
                 this->targetDistance - pos))
             {
+                if (this->exitVelocity >= this->maxVelocity)
+                {
+                    this->currentMode = MODE_FINISHED;
+                    return this->exitVelocity;
+                }
+
                 this->currentMode = MODE_T3;   
                 TrapProfileGetTrapInfo(this, this->targetDistance - pos); 
                 this->currentVelocity = this->decelMaxVelocity;

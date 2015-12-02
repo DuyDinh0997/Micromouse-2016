@@ -4,7 +4,8 @@
 #include "mouse.h"
 #include "processor.h"
 
-void updateTypeMoveForward();
+void updateTypeBasic();
+void updateTypeTurn();
 
 typedef void (*updateType)();
 

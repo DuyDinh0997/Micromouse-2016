@@ -20,6 +20,7 @@ void ProcessorSetupGPIO();
 void ProcessorSetupSerial(int);
 void ProcessorSetupMotors();
 void ProcessorSetupSensors();
+void ProcessorSetRXCallback(callbackFunction func);
 
 void ProcessorResetSensor(int);
 int ProcessorGetSensor(int);
@@ -27,12 +28,14 @@ int ProcessorGetSensor(int);
 void ProcessorWriteMemoryWithString(char*);
 void ProcessorWriteMemoryWithChar(char);
 void ProcessorWriteMemoryWithInt(int);
+void ProcessorEraseMemory();
 
 void ProcessorSendSerialString(const char*);
 void ProcessorSendSerialRawInt(int);
 void ProcessorSendSerialInt(int);
 void ProcessorSendSerialDouble(double);
 void ProcessorSetBuzzerFrequency(int);
+void ProcessorSendSerialChar(char value);
 
 Processor* SingletonProcessor()
 {
@@ -59,16 +62,23 @@ Processor* SingletonProcessor()
         processor->writeMemoryWithString = ProcessorWriteMemoryWithString;
         processor->writeMemoryWithChar = ProcessorWriteMemoryWithChar;
         processor->writeMemoryWithInt = ProcessorWriteMemoryWithInt;
-
+        processor->eraseMemory = ProcessorEraseMemory;
         processor->serialSendString = ProcessorSendSerialString;
         processor->serialSendRawInt = ProcessorSendSerialRawInt;
         processor->serialSendInt = ProcessorSendSerialInt;
         processor->serialSendDouble = ProcessorSendSerialDouble;
+        processor->serialSendChar = ProcessorSendSerialChar;
+        processor->serialSetRXCallback = ProcessorSetRXCallback;
 
         processor->setBuzzerFrequency = ProcessorSetBuzzerFrequency;
     }
 
     return processor;
+}
+
+void ProcessorSetRXCallback(callbackFunction func)
+{
+	SetCallBackSerialFunction(func);
 }
 
 void ProcessorSetupSensors()
@@ -84,6 +94,11 @@ void ProcessorWriteMemoryWithString(char* s)
 void ProcessorWriteMemoryWithChar(char c)
 {
     Flash_SaveByte(c);
+}
+
+void ProcessorEraseMemory()
+{
+	Flash_EraseDataBuffer();
 }
 
 void ProcessorWriteMemoryWithInt(int num)
@@ -149,6 +164,7 @@ void ProcessorSetupGPIO()
     SysTick_Config(SystemCoreClock / 1000);
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
     NVIC_SetPriority(SysTick_IRQn, 0);
+	Flash_ResetFlashAddress();
 }
 
 void ProcessorSetupSerial(int baud)
@@ -299,6 +315,11 @@ void ProcessorSendSerialRawInt(int number)
 void ProcessorSendSerialInt(int number)
 {
     Config_SerialSaveIntegerAsString(number);
+}
+
+void ProcessorSendSerialChar(char value)
+{
+	Config_SerialSaveRawChar(value);
 }
 
 void ProcessorSendSerialDouble(double number)

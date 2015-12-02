@@ -18,6 +18,7 @@
 #define __TRAP_PROFILE_H__
 
 #include <math.h>
+#include "../feedback/pid.h"
 
 #define MODE_UNSET      0x00
 #define MODE_T1         0x01
@@ -27,6 +28,13 @@
 
 typedef struct TrapProfile
 {
+	PID* lT1;
+	PID* lT2;
+	PID* lT3;
+	PID* rT1;
+	PID* rT2;
+	PID* rT3;
+
     float startVelocity;
     float maxVelocity;
     float exitVelocity; 
@@ -50,5 +58,6 @@ typedef struct TrapProfile
 
 void TrapProfileReset(TrapProfile* this, float startVelocity, float maxVelocity, float endVelocity, float acceleration, float targetDistance);
 float TrapProfileUpdate(TrapProfile*, float, float, float);
-
+PID* TrapProfileGetLeftPID(TrapProfile*);
+PID* TrapProfileGetRightPID(TrapProfile*);
 #endif

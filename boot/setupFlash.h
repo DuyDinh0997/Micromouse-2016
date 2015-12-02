@@ -19,6 +19,7 @@
 
 void Flash_EraseDataBuffer();
 void Flash_SaveByte(uint8_t data);
+void Flash_SaveInt(int data);
 void Flash_SaveWord(uint32_t data);
 void Flash_SaveString(char* string);
 void Flash_ResetFlashAddress();

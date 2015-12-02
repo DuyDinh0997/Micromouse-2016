@@ -70,3 +70,35 @@ void Flash_SaveWord(uint32_t data)
 	FLASH_Lock();
 }
 
+void Flash_SaveInt(int num)
+{
+	int tempNum = num;
+    int lc = 0;
+
+    if (num < 0)
+    {
+        Flash_SaveByte('-');
+        num = -num;
+        tempNum = num;
+    }
+
+    while (1==1)
+    {
+        lc++;
+        if (tempNum / 10 <= 0) break;
+        tempNum /= 10;
+    }
+
+    int i;
+    for (i = 0; i < lc; i++)
+    {
+        int pow = 1;
+        int j;
+        for (j = i; j < lc-1; j++)
+            pow *= 10;
+
+        int result = (num/pow % 10);
+        Flash_SaveByte('0' + result);
+    }
+}
+
