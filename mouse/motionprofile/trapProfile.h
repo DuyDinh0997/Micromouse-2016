@@ -47,6 +47,9 @@ typedef struct TrapProfile
 
     int currentMode; 
 
+    // If 1, Start at max velocity and decelerate (skip T1/T2)
+    int decelOnly;
+
     int startingPosition;
 
     float decelerationLength;
@@ -60,4 +63,6 @@ void TrapProfileReset(TrapProfile* this, float startVelocity, float maxVelocity,
 float TrapProfileUpdate(TrapProfile*, float, float, float);
 PID* TrapProfileGetLeftPID(TrapProfile*);
 PID* TrapProfileGetRightPID(TrapProfile*);
+void TrapProfileSetDecelOnly(TrapProfile* this, float maxVelocity);
+
 #endif

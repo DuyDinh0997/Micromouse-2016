@@ -33,11 +33,23 @@ void TrapProfileReset(
     this->exitVelocity = endVelocity;
     this->targetDistance = targetDistance;
     this->timeDuringDecel = 1;
+    this->decelOnly = 0;
+}
+
+// Tell the trap profile to skip acceleration/smaxVelocity
+// and just skip to deceleration.
+void TrapProfileSetDecelOnly(TrapProfile* this, float maxVelocity)
+{
+	this->decelOnly = 1;
+	this->currentMode = MODE_T3;
+	this->currentVelocity = maxVelocity;
 }
 
 int TrapProfileShouldDecelerate(TrapProfile* this,
     float tmpAccel, float distanceLeft)
 {
+    int dir = (this->maxVelocity < 0) ? -1 : 1; 
+
     float currentVelocity = this->currentVelocity;
     float acceleration = tmpAccel;
     float deceleration = this->deceleration;
@@ -54,13 +66,15 @@ int TrapProfileShouldDecelerate(TrapProfile* this,
         n*exitVelocity + 
         n*(n+1)/2*deceleration - distanceLeft; 
      
-    return (result > 0) ? 1 : 0;
+    return (result*dir > 0) ? 1 : 0;
 }
 
 void TrapProfileGetTrapInfo(
     TrapProfile* this, 
     float distanceLeft)
 {
+    int dir = (this->maxVelocity < 0) ? -1 : 1; 
+
     float acceleration = this->acceleration;
     float exitVelocity = this->exitVelocity;
     //float currentVelocity = this->currentVelocity;
@@ -84,10 +98,10 @@ void TrapProfileGetTrapInfo(
     float vOffTest = 
         (totalTime*exitVelocity + 
         totalTime*(totalTime+1)*acceleration/2 - 
-        distanceLeft) / totalTime;
+        distanceLeft) / totalTime ;
 
     int accelerationTime = 
-        (vOffTest > acceleration) 
+        (vOffTest*dir > acceleration*dir) 
         ? totalTime-1: totalTime; 
 
     float vOffReal = 
@@ -140,6 +154,7 @@ float TrapProfileUpdate(
     TrapProfile* this, 
     float pos, float velocity, float dT)
 {
+    int dir = (this->maxVelocity < 0) ? -1 : 1; 
 
     this->elaspedTime += dT;
 
@@ -157,7 +172,7 @@ float TrapProfileUpdate(
                 this->startVelocity + this->acceleration*this->elaspedTime;
            
             float tmpAccel = this->acceleration; 
-            if (this->currentVelocity >= this->maxVelocity)
+            if (this->currentVelocity*dir >= this->maxVelocity*dir)
             {
             	this->currentMode = MODE_T2;
                 tmpAccel = 0; 
@@ -167,7 +182,7 @@ float TrapProfileUpdate(
             if (TrapProfileShouldDecelerate(this, tmpAccel,
                 this->targetDistance - pos))
             {
-                if (this->exitVelocity >= this->maxVelocity)
+                if (this->exitVelocity*dir >= this->maxVelocity*dir)
                 {
                     this->currentMode = MODE_FINISHED;
                     return this->exitVelocity;
@@ -181,6 +196,7 @@ float TrapProfileUpdate(
             if (this->deceleration != 0)
             {
                 // Forget about T3 or something
+
             }
 
             return this->currentVelocity;
@@ -189,12 +205,17 @@ float TrapProfileUpdate(
         case MODE_T3:
 
             this->currentVelocity -= this->deceleration;
-            if (this->currentVelocity <= this->exitVelocity)
+
+            if (this->currentVelocity*dir <= this->exitVelocity*dir)
                 this->currentVelocity = this->exitVelocity;
+
             this->timeDuringDecel++; 
 
-            if (this->timeDuringDecel >= this->decelerationLength)
-                this->currentMode = MODE_FINISHED;
+            // if (this->timeDuringDecel >= this->decelerationLength)
+            //    this->currentMode = MODE_FINISHED;
+
+            if (this->currentVelocity*dir <= this->exitVelocity*dir)
+            	this->currentMode = MODE_FINISHED;
 
             return this->currentVelocity;
 

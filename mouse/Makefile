@@ -36,6 +36,7 @@ SRCS += buzzer/buzzer.c
 SRCS += feedback/pid.c 
 SRCS += motionprofile/trapProfile.c
 SRCS += motion/updateType.c
+SRCS += motion/motion.c
 
 OBJS = $(SRCS:.c=.o)
 

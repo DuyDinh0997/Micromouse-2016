@@ -198,7 +198,7 @@ static void SensorNVIC()
 	NVIC_InitTypeDef NVIC_Struct;
 	NVIC_Struct.NVIC_IRQChannel = TIM4_IRQn;
 	NVIC_Struct.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_Struct.NVIC_IRQChannelSubPriority = 1;
+	NVIC_Struct.NVIC_IRQChannelSubPriority = 0;
 	NVIC_Struct.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_Struct);
 
@@ -224,7 +224,7 @@ volatile int lc = 0;
 void TIM4_IRQHandler()
 {
 	// On startup of the timer
-	if(TIM_GetITStatus(TIM4, TIM_IT_CC1) != RESET)
+	if (TIM_GetITStatus(TIM4, TIM_IT_CC1) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM4, TIM_IT_CC1);
 
@@ -235,7 +235,7 @@ void TIM4_IRQHandler()
 	}
 
 	// CC2 : After 80us pass for the sensor to turn on correctly, do a ADC conversion
-	else if(TIM_GetITStatus(TIM4, TIM_IT_CC2) != RESET)
+	else if (TIM_GetITStatus(TIM4, TIM_IT_CC2) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM4, TIM_IT_CC2);
 
@@ -260,7 +260,7 @@ void ADC_IRQHandler()
 	{
 		ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
 
-		if (_previousDataCounter > 6)//30)
+		if (_previousDataCounter > 14)//30)
 		{
 			// Turn off the sensor pin
 			_previousData[_previousDataCounter] = ADC_GetConversionValue(ADC1);
@@ -272,16 +272,16 @@ void ADC_IRQHandler()
 
 			int i;
 			int sum = 0;
-			for (i = 0; i < 8/*32*/; i++)
+			for (i = 0; i < 16; i++)
 			{
 				sum += _previousData[i];
 			}
 
-			Sensors[counter].data = sum*4;
+			Sensors[counter].data = sum*2;
 
-			/*if (counter == 0)
+			/*if (counter == 0 && DOIT_DUDE == 1)
 			{
-				Flash_SaveString("E,");
+				Flash_SaveString("-,");
 				Flash_SaveInt(sum);
 
 				int highest = 0;
@@ -294,7 +294,6 @@ void ADC_IRQHandler()
 				Flash_SaveString(",H,");
 				Flash_SaveInt(highest);
 				Flash_SaveString("\n");
-
 			}*/
 
 			counter++;
@@ -311,4 +310,3 @@ void ADC_IRQHandler()
 		}
 	}
 }
-

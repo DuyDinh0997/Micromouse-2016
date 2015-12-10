@@ -35,6 +35,7 @@ Mouse* SingletonMouse()
         mouse->motionType = 0;
 		mouse->motorValueLeft = 0;
 		mouse->motorValueRight = 0;
+		mouse->canUpdate = 0;
     }
 
     return mouse;
@@ -62,6 +63,8 @@ void MouseInitiate()
 
     // Everytime the processor updates every 1ms, this function is called.
     proc->callback = MouseUpdate;
+
+
 }
 
 void MouseCalibrateGyro()
@@ -123,6 +126,9 @@ void MouseUpdate()
     int leftEncoderPos = proc->getSensor(SENSOR_ENCODER_LEFT);
     int rightEncoderPos = proc->getSensor(SENSOR_ENCODER_RIGHT);
 
+    proc->serialSendInt(proc->getSensor(SENSOR_LEFT_3));
+    proc->serialSendChar('\n');
+
     mouse->encoderVelocityLeft =
     		leftEncoderPos - mouse->previousEncoderValueLeft;
 
@@ -168,7 +174,7 @@ void MouseUpdate()
     if (mouse->motionType != 0)
     {
 		proc->setLED(LED_RIGHT_1, LED_ON);
-    	mouse->motionType();
+    	//mouse->motionType();
     }
     // If there is currently no motionType being executed, set motors to off.
     else
@@ -200,4 +206,6 @@ void MouseUpdate()
     {
         proc->setBuzzerFrequency(0);
     }
+
+    mouse->canUpdate = 1;
 }

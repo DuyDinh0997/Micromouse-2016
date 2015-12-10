@@ -163,7 +163,7 @@ void ProcessorSetupGPIO()
     // Turn on the update loop and make it the highest priority.
     SysTick_Config(SystemCoreClock / 1000);
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
-    NVIC_SetPriority(SysTick_IRQn, 0);
+    NVIC_SetPriority(SysTick_IRQn, 1);
 	Flash_ResetFlashAddress();
 }
 

@@ -3,10 +3,12 @@
 
 #include "mouse.h"
 #include "processor.h"
+#include "motion.h"
 
-void updateTypeBasic();
-void updateTypeTurn();
+void updateTypeBasic(MotionInfo* this);
+void updateTypeTurn(MotionInfo* this);
+void updateTypeDecel(MotionInfo* this);
 
-typedef void (*updateType)();
+typedef void (*updateType)(MotionInfo* info);
 
 #endif

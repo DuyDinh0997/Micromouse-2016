@@ -3,6 +3,7 @@
 #include "processor.h"
 #include "mouse.h"
 #include "menuStrip.h"
+#include "motion.h"
 
 void exitMenu()
 {
@@ -90,6 +91,8 @@ void waitForHand()
 	}
 }
 
+
+
 int stringStartsWith(char* string, const char* target)
 {
 	while(*target != 0)
@@ -160,6 +163,28 @@ void TestCallBackFunction(char* string)
 	}
 }
 
+void testTurn(int degrees, MotionInfo* info, TrapProfile* tmpProfile, TrapProfile* angProfile)
+{
+    // Into Length
+    info->startVelocity = 75;
+    info->length = 1200;
+    MotionStraight(info);
+
+    MotionTurn(degrees, tmpProfile, angProfile);
+
+    // Out Length
+    info->length = 1650;
+    MotionStraight(info);
+}
+
+void setupBasicMouseSettings(MouseInfo* info)
+{
+	info->searchingWallFrontValue = 17000;
+
+	info->searchingLeftWallValue = 32000;
+	info->searchingRightWallValue = 32000;
+}
+
 int main(void) 
 {
     Mouse* mouse = SingletonMouse();
@@ -219,25 +244,66 @@ int main(void)
     mouse->motorValueLeft = 100;
     mouse->motorValueRight = 100;
 
+    MotionInfo info;
+    info.length = 14200+20000*0;
+    info.startVelocity = 0;
+    info.maxVelocity = 75;
+    info.exitVelocity = 75;
+    info.linearProfile = &tmpProfile;
+    info.angularProfile = &angProfile;
+    info.useWalls = 0;
+
+    MotionStraight(&info);
+    MotionDecel(&info);
+
+    MotionTurn(-90, &tmpProfile, &angProfile);
+
+    //MotionStraightWithWall(&info);
+
+    /* STOP */
+    info.length = 20000;
+    info.exitVelocity = 0;
+    info.startVelocity = 75;
+    MotionStraight(&info);
+/*    info.startVelocity = 75;
+    info.length = 19260;
+
+    MotionStraight(&info);
+    MotionTurn(-135, &tmpProfile, &angProfile);
+    MotionStraight(&info);
+    MotionTurn(45, &tmpProfile, &angProfile);
+
+    info.exitVelocity = 0;
+
+    MotionStraight(&info);*/
+/*    MotionStraight(10000, 0, 75, 75, &tmpProfile, &angProfile);
+    MotionStraight(19260, 75, 75, 75, &tmpProfile, &angProfile);
+    MotionTurn(-135, &tmpProfile, &angProfile);
+    MotionStraight(19260, 75, 75, 75, &tmpProfile, &angProfile);
+    MotionTurn(45, &tmpProfile, &angProfile);
+    MotionStraight(19260, 75, 75, 0, &tmpProfile, &angProfile);*/
+
     // Go forward
-    mouse->motionType = updateTypeBasic;
-    while(mouse->motionType != 0);
+/*    mouse->motionType = updateTypeBasic;
+    executeMotion();
 
     // Turn 90 deg
     float linearVelocity = mouse->targetLinearVelocity = 75;
-    float turnRadius = 50; // In mm;
+    float turnRadius = 70; // In mm;
     float angVelocityRadian = linearVelocity / (turnRadius * ENCODER_TICKS_PER_MM);
     float angVelocityDegrees = angVelocityRadian * 57.2957795; // 57.295 is the scaling between radians and degrees.
     float angularAcceleration = 0.01;
     float angularPosition = 87;
 
+    int dir = (angVelocityDegrees < 0) ? -1 : 1;
+
     mouse->motorValueAngular = 30;
 
     TrapProfileReset(&angProfile, 0, angVelocityDegrees, 0, angularAcceleration, angularPosition);
-    mouse->motorValueLeft += 100;
-    mouse->motorValueRight -= 100;
+    mouse->motorValueLeft += 100*dir;
+    mouse->motorValueRight -= 100*dir;
     mouse->motionType = updateTypeTurn;
-    while (mouse->motionType != 0);
+    executeMotion();
 
     // Go forward again.
     proc->resetSensor(SENSOR_ENCODER_LEFT);
@@ -249,7 +315,7 @@ int main(void)
     TrapProfileReset(&angProfile, 90, 90, 90, 0, 0);
 
     mouse->motionType = updateTypeBasic;
-    while (mouse->motionType != 0);
+    executeMotion();*/
 
     // Stop n stuff
     while(1==1);

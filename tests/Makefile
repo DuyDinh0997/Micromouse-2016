@@ -28,7 +28,7 @@ all:
 	#gcc -o stacktest $(CFLAGS) stacktest.c $(SRCS) -lm
 	#gcc -o menutest $(CFLAGS) menutest.c $(SRCS) -lm
 	#gcc -o dfttest $(CFLAGS) dfttest.c $(SRCS) -lm
-	#gcc -o mazetest $(CFLAGS) mazetest.c $(SRCS) -lm
+	gcc -o mazetest $(CFLAGS) mazetest.c $(SRCS) -lm
 	gcc -o motion $(CFLAGS) motionprofile.c $(SRCS) -lm
 	gcc -o sim $(CFLAGS) simulator.c $(SRCS) -lm
 
