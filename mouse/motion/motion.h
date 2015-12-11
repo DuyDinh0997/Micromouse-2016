@@ -7,15 +7,6 @@
 
 typedef struct MotionInfo
 {
-	int length;
-	int startVelocity;
-	int maxVelocity;
-	int exitVelocity;
-	double acceleration;
-
-	TrapProfile* linearProfile;
-	TrapProfile* angularProfile;
-
 	int useWalls;
 
 } MotionInfo;

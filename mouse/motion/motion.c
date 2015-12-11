@@ -17,8 +17,6 @@ void MotionDecel(MouseInfo* mouseInfo, MotionInfo* motionInfo,
     	startVelocity, startVelocity, exitVelocity,
 		accel, length);
 
-	TrapProfileSetDecelOnly(&mouseInfo->linearProfile, startVelocity);
-
     TrapProfileReset(&mouseInfo->angularProfile,
     	0, 0, 0,
 		0, 0);

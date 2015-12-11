@@ -107,6 +107,18 @@ void updateTypeDecel(MouseInfo* mouseInfo, MotionInfo* this)
 	Mouse* mouse = SingletonMouse();
     Processor* proc = SingletonProcessor();
 
+	int frontLeft = proc->getSensor(SENSOR_LEFT_1);
+	int useWall = 0;
+
+	if (frontLeft > mouseInfo->searchingWallExists)
+	{
+		useWall = 1;
+		TrapProfileSetDecelOnly(&mouseInfo->linearProfile,
+			mouseInfo->linearProfile.startVelocity);
+	}
+
+	proc->setLED(LED_RIGHT_2, LED_ON);
+
     while (1==1)
     {
     	waitForNextUpdate();
@@ -154,14 +166,15 @@ void updateTypeDecel(MouseInfo* mouseInfo, MotionInfo* this)
 		proc->setMotor(LEFT_MOTOR, mouse->motorValueLeft);
 		proc->setMotor(RIGHT_MOTOR, mouse->motorValueRight);
 
-		if (mouseInfo->linearProfile.decelOnly == 0 &&
+		if (useWall == 0 &&
 			mouseInfo->linearProfile.currentMode == MODE_FINISHED)
 			break;
 
-		if (mouseInfo->linearProfile.decelOnly == 1 &&
-			frontLeft > 17000)
+		if (useWall == 1 &&
+			frontLeft > mouseInfo->searchingWallFrontValue)
 			break;
     }
+	proc->setLED(LED_RIGHT_2, LED_OFF);
 }
 
 void updateTypeTurn(MouseInfo* mouseInfo, MotionInfo* motionInfo)

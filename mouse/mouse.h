@@ -52,6 +52,12 @@ typedef struct MouseInfo
 	double straightAccel;
 	double turningAcceleration;
 
+	// The distance the mouse needs to move out of the very first cell.
+	double firstCellDistance;
+
+	// The distance to go straight on any given cell.
+	double normalCellDistance;
+
 	// The value when searching and there is a
 	// wall in front where the mouse should
 	// start turning.

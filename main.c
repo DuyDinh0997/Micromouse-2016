@@ -3,6 +3,7 @@
 #include "motion.h"
 #include "callistoMenu.h"
 #include "callistoSerial.h"
+#include "cellToCell.h"
 
 void waitForHand();
 void setupBasicMouseSettings(MouseInfo* info);
@@ -22,31 +23,24 @@ int main(void)
     mouse->calibrateGyro();
 
     MouseInfo mouseInfo;
+    MotionInfo motionInfo;
+
+    mouseInfo.straightVelocity = 85;
+    mouseInfo.straightAccel = 0.5;
+    mouseInfo.turningVelocity = 75;
+    mouseInfo.turningAcceleration = 0.01;
+    mouseInfo.turningRadius = 50;
+	mouseInfo.turnInLength = 1650;
+	mouseInfo.turnOutLength = 1200;
 
     setupBasicMouseSettings(&mouseInfo);
 
-    // Start at a higher speed so that accelerate happens sooner.
-    mouse->motorValueLeft = 100;
-    mouse->motorValueRight = 100;
+    motionInfo.useWalls = 0;
 
-    // In length = 1200
-    // Out length = 1650
-
-    MotionInfo info;
-    info.useWalls = 1;
-
-    MotionStraight(&mouseInfo, &info,
-    	0, 75, 75, 0.5, 14200+20000*0);
-
-    MotionDecel(&mouseInfo, &info,
-    	75, 75, 0.5, 1650);
-
-    MotionTurn(&mouseInfo, &info,
-    	-90, 75, 0.01, 50);
-
-    info.useWalls = 0;
-    MotionStraight(&mouseInfo, &info,
-    	75, 75, 0, 0.5, 20000);
+    SearchingFirstCell(&mouseInfo, &motionInfo);
+    SearchingStraight(&mouseInfo, &motionInfo);
+    SearchingTurn(-90, &mouseInfo, &motionInfo);
+    SearchingStraight(&mouseInfo, &motionInfo);
 
     mouse->motorValueLeft = 0;
     mouse->motorValueRight = 0;
@@ -72,10 +66,11 @@ void waitForHand()
 void setupBasicMouseSettings(MouseInfo* info)
 {
 	info->searchingWallFrontValue = 17000;
-
 	info->searchingWallExists = 12000;
 	info->searchingLeftWallValue = 32000;
 	info->searchingRightWallValue = 32000;
+	info->firstCellDistance = 14200;
+	info->normalCellDistance = 20000;
 
 	// Setup Straight Trap Profile PID's
 	PIDSetup(&info->lT1, 0.3, 0.0, 0.4);
