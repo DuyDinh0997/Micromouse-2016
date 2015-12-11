@@ -1,14 +1,8 @@
-/*
- * main.h
- *
- *  Created on: 10 jul 2012
- *      Author: BenjaminVe
- */
-
 #ifndef MAIN_H_
 #define MAIN_H_
 
-// Function prototypes
+// Timing handler used in processor.c and stm32f4 lib.
+// TODO: Is there a better place for this?
 void timing_handler();
 
-#endif /* MAIN_H_ */
+#endif

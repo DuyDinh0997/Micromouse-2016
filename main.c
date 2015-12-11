@@ -1,84 +1,62 @@
-#include <stdlib.h>
-#include "setupGPIO.h"
 #include "processor.h"
 #include "mouse.h"
-#include "menuStrip.h"
 #include "motion.h"
+#include "callistoMenu.h"
+#include "callistoSerial.h"
 
-void exitMenu()
+void waitForHand();
+void setupBasicMouseSettings(MouseInfo* info);
+
+int main(void)
 {
     Mouse* mouse = SingletonMouse();
-    free(mouse->menu);
-	mouse->menu = 0;
-}
-
-void clearMemoryMenu()
-{
     Processor* proc = SingletonProcessor();
-    Mouse* mouse = SingletonMouse();
 
-    proc->setScreenWithString("WAIT");
-    proc->setBuzzerFrequency(0);
+    mouse->initiate();
+    BuzzerBufferAddTone(&mouse->buzzer, 800, 200);
+    proc->serialSetRXCallback(TestCallBackFunction);
 
-    proc->eraseMemory();
+    executeMainMenu();
 
-	BuzzerBufferAddTone(&mouse->buzzer, 3000, 50);
-	BuzzerBufferAddTone(&mouse->buzzer, 3000, 0);
-	BuzzerBufferAddTone(&mouse->buzzer, 3000, 50);
-	BuzzerBufferAddTone(&mouse->buzzer, 3000, 0);
-	BuzzerBufferAddTone(&mouse->buzzer, 3000, 50);
-	BuzzerBufferAddTone(&mouse->buzzer, 3000, 0);
-}
+    waitForHand();
+    mouse->calibrateGyro();
 
-void executeMainMenu()
-{
-    Processor* proc = SingletonProcessor();
-    Mouse* mouse = SingletonMouse();
+    MouseInfo mouseInfo;
 
-    // Initialize Main Menu
-    mouse->menu = malloc(sizeof(Menu));
-	MenuReset(mouse->menu);
+    setupBasicMouseSettings(&mouseInfo);
 
-	MenuAddItem(mouse->menu, "GO  ", exitMenu);
-	MenuAddItem(mouse->menu, "ERSE", clearMemoryMenu);
-	MenuAddItem(mouse->menu, "IDEK", 0);
-	proc->setScreenWithString(MenuGetText(mouse->menu));
+    // Start at a higher speed so that accelerate happens sooner.
+    mouse->motorValueLeft = 100;
+    mouse->motorValueRight = 100;
 
-	int clicked = 0;
+    // In length = 1200
+    // Out length = 1650
 
-	while (mouse->menu != 0)
-	{
-		double sensitivity = 400;
-		double rightEncoderPos = abs(proc->getSensor(SENSOR_ENCODER_RIGHT));
+    MotionInfo info;
+    info.useWalls = 1;
 
-		int indexChanged =
-			MenuSetIndex(mouse->menu,
-				(int)(rightEncoderPos/sensitivity)%MenuLength(mouse->menu));
+    MotionStraight(&mouseInfo, &info,
+    	0, 75, 75, 0.5, 14200+20000*0);
 
-		if (indexChanged > 0)
-		{
-			proc->setScreenWithString(MenuGetText(mouse->menu));
-			BuzzerBufferAddTone(&mouse->buzzer, 1600, 20);
-			BuzzerBufferAddTone(&mouse->buzzer, 0, 20);
-		}
+    MotionDecel(&mouseInfo, &info,
+    	75, 75, 0.5, 1650);
 
-		if (proc->getSensor(SENSOR_BUTTON_1) == 1 )
-		{
-			if (clicked <= 0)
-			{
-				BuzzerBufferAddTone(&mouse->buzzer, 1800, 50);
-				BuzzerBufferAddTone(&mouse->buzzer, 0, 50);
-				menuCallback callback = MenuItemClick(mouse->menu);
-				if (callback != 0) callback();
-			}
+    MotionTurn(&mouseInfo, &info,
+    	-90, 75, 0.01, 50);
 
-			clicked = 5;
-		}
-		else
-		{
-			clicked--;
-		}
-	}
+    info.useWalls = 0;
+    MotionStraight(&mouseInfo, &info,
+    	75, 75, 0, 0.5, 20000);
+
+    mouse->motorValueLeft = 0;
+    mouse->motorValueRight = 0;
+    proc->setMotor(LEFT_MOTOR, mouse->motorValueLeft);
+	proc->setMotor(RIGHT_MOTOR, mouse->motorValueRight);
+
+    // Stop n stuff
+    while(1==1);
+
+    return 0;
 }
 
 void waitForHand()
@@ -89,92 +67,6 @@ void waitForHand()
 	{
 		// Do nothing, just wait.
 	}
-}
-
-
-
-int stringStartsWith(char* string, const char* target)
-{
-	while(*target != 0)
-	{
-		if (*string == 0)
-			return 0;
-
-		if (*string != *target)
-			return 0;
-
-		string++;
-		target++;
-	}
-
-	return 1;
-}
-
-void TestCallBackFunction(char* string)
-{
-	Processor* proc = SingletonProcessor();
-
-	// Example: mm-flash=08080000,100
-	if (stringStartsWith(string, "mm-flash") == 1)
-	{
-		// Read in a 8-bit FLASH address and print it to the serial buffer
-		string+=9;
-		char* addr = 0;
-		int i;
-		for (i = 0; i < 8; i++)
-		{
-			if (*string == 0) break;
-			addr += (*string - '0') << 4*(7-i);
-			string++;
-		}
-		string++;
-
-		// Determine how large this number is
-		int stringCount = 0;
-		while (*string != '\n' && *string != 0)
-		{
-			stringCount++;
-			string++;
-		}
-
-		string-=stringCount;
-		int num = 0;
-		for (i = 0; i < stringCount; i++)
-		{
-			int multBy = 1;
-			int j;
-			for(j = 1; j < stringCount-i; j++)
-				multBy *= 10;
-
-			num += (*string - '0') * multBy;
-			string++;
-		}
-
-		long lc = 0;
-		for(lc = 0; lc < num; lc++)
-		{
-			proc->serialSendChar(*addr);
-			addr++;
-		}
-	}
-	else if (stringStartsWith(string, "mm-ok") == 1)
-	{
-		proc->serialSendString("yes\n");
-	}
-}
-
-void testTurn(int degree, MotionInfo* info, TrapProfile* tmpProfile, TrapProfile* angProfile)
-{
-    // Into Length
-/*    info->startVelocity = 75;
-    info->length = 1200;
-    MotionStraight(info);
-
-    MotionTurn(degrees, tmpProfile, angProfile);
-
-    // Out Length
-    info->length = 1650;
-    MotionStraight(info);*/
 }
 
 void setupBasicMouseSettings(MouseInfo* info)
@@ -222,113 +114,3 @@ void setupBasicMouseSettings(MouseInfo* info)
     PIDSetup(&info->wallPositionPID, 0.0003, 0.00, 0.00);
 }
 
-int main(void) 
-{
-    Mouse* mouse = SingletonMouse();
-    Processor* proc = SingletonProcessor();
-
-    mouse->initiate();
-    BuzzerBufferAddTone(&mouse->buzzer, 800, 200); 
-    proc->serialSetRXCallback(TestCallBackFunction);
-
-    executeMainMenu();
-
-    waitForHand();
-    mouse->calibrateGyro();
-
-    MouseInfo mouseInfo;
-
-    setupBasicMouseSettings(&mouseInfo);
-
-    // Start at a higher speed so that accelerate happens sooner.
-    mouse->motorValueLeft = 100;
-    mouse->motorValueRight = 100;
-
-    MotionInfo info;
-    info.useWalls = 0;
-
-    MotionStraight(&mouseInfo, &info,
-    	0, 75, 75, 0.5, 14200+20000*0);
-
-    MotionDecel(&mouseInfo, &info,
-    	75, 75, 0.5, 1650);
-
-    MotionTurn(&mouseInfo, &info,
-    	-90, 75, 0.01, 50);
-
-    info.useWalls = 0;
-    MotionStraight(&mouseInfo, &info,
-    	75, 75, 0, 0.5, 20000);
-
-    mouse->motorValueLeft = 0;
-    mouse->motorValueRight = 0;
-    proc->setMotor(LEFT_MOTOR, mouse->motorValueLeft);
-	proc->setMotor(RIGHT_MOTOR, mouse->motorValueRight);
-
-
-/*    MotionDecel(&info);
-
-    MotionTurn(-90, &mouseInfo);
-
-    //MotionStraightWithWall(&info);
-
-    MotionStraight(&mouseInfo, &info,
-    	75, 75, 0, 0.5, 20000);*/
-
-/*    info.startVelocity = 75;
-    info.length = 19260;
-
-    MotionStraight(&info);
-    MotionTurn(-135, &tmpProfile, &angProfile);
-    MotionStraight(&info);
-    MotionTurn(45, &tmpProfile, &angProfile);
-
-    info.exitVelocity = 0;
-
-    MotionStraight(&info);*/
-/*    MotionStraight(10000, 0, 75, 75, &tmpProfile, &angProfile);
-    MotionStraight(19260, 75, 75, 75, &tmpProfile, &angProfile);
-    MotionTurn(-135, &tmpProfile, &angProfile);
-    MotionStraight(19260, 75, 75, 75, &tmpProfile, &angProfile);
-    MotionTurn(45, &tmpProfile, &angProfile);
-    MotionStraight(19260, 75, 75, 0, &tmpProfile, &angProfile);*/
-
-    // Go forward
-/*    mouse->motionType = updateTypeBasic;
-    executeMotion();
-
-    // Turn 90 deg
-    float linearVelocity = mouse->targetLinearVelocity = 75;
-    float turnRadius = 70; // In mm;
-    float angVelocityRadian = linearVelocity / (turnRadius * ENCODER_TICKS_PER_MM);
-    float angVelocityDegrees = angVelocityRadian * 57.2957795; // 57.295 is the scaling between radians and degrees.
-    float angularAcceleration = 0.01;
-    float angularPosition = 87;
-
-    int dir = (angVelocityDegrees < 0) ? -1 : 1;
-
-    mouse->motorValueAngular = 30;
-
-    TrapProfileReset(&angProfile, 0, angVelocityDegrees, 0, angularAcceleration, angularPosition);
-    mouse->motorValueLeft += 100*dir;
-    mouse->motorValueRight -= 100*dir;
-    mouse->motionType = updateTypeTurn;
-    executeMotion();
-
-    // Go forward again.
-    proc->resetSensor(SENSOR_ENCODER_LEFT);
-    proc->resetSensor(SENSOR_ENCODER_RIGHT);
-    mouse->previousEncoderValueLeft = 0;
-    mouse->previousEncoderValueRight = 0;
-
-    TrapProfileReset(&tmpProfile, 75, 75, 0, 0.5, 19260);
-    TrapProfileReset(&angProfile, 90, 90, 90, 0, 0);
-
-    mouse->motionType = updateTypeBasic;
-    executeMotion();*/
-
-    // Stop n stuff
-    while(1==1);
-
-    return 0;
-}

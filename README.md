@@ -16,3 +16,6 @@ Quick Overview:
 
  - stm32f4/
    Contains a low-level library for the STM32F4 processor, provided by ST   
+
+ - callisto/
+   Contains Callisto specific code that can't be generalized.  For instance, the specific menu system for the mouse.
