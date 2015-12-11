@@ -7,12 +7,12 @@ int main()
     printf("Starting Motion Profile Test\n"); 
 
     float pos = 0;
-    float velocity = 75;
-    float accel = 4.02143;
+    float velocity = 0;
+    float accel = 0.5;
     float startVelocity = 10;
     float maxVelocity = 75;
-    float exitVelocity = 15;
-    float targetDistance = 750;
+    float exitVelocity = 75;
+    float targetDistance = 14200;
 
     int time = 0;
     //TrapProfileInfo info;
@@ -21,10 +21,6 @@ int main()
 
     TrapProfileReset(&prof, 
         startVelocity, maxVelocity, exitVelocity, accel, targetDistance); 
-
-    prof.decelOnly = 1;
-    prof.currentMode = MODE_T3;
-    prof.currentVelocity = velocity;
 
     while (1)
     {

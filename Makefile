@@ -79,5 +79,6 @@ clean:
 	rm -f $(OUTPATH)/$(PROJ_NAME).bin
 	rm -f something.swp `find -name "*.swp"` # Delete all ".swp" files
 	rm -f something.~ `find -name "*~"` # Delete all "~" files
+	$(MAKE) clean -C mouse
 	#$(MAKE) clean -C stm32f4/lib # Remove this line if you don't want to clean the libs as well
 	

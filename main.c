@@ -163,10 +163,10 @@ void TestCallBackFunction(char* string)
 	}
 }
 
-void testTurn(int degrees, MotionInfo* info, TrapProfile* tmpProfile, TrapProfile* angProfile)
+void testTurn(int degree, MotionInfo* info, TrapProfile* tmpProfile, TrapProfile* angProfile)
 {
     // Into Length
-    info->startVelocity = 75;
+/*    info->startVelocity = 75;
     info->length = 1200;
     MotionStraight(info);
 
@@ -174,15 +174,52 @@ void testTurn(int degrees, MotionInfo* info, TrapProfile* tmpProfile, TrapProfil
 
     // Out Length
     info->length = 1650;
-    MotionStraight(info);
+    MotionStraight(info);*/
 }
 
 void setupBasicMouseSettings(MouseInfo* info)
 {
 	info->searchingWallFrontValue = 17000;
 
+	info->searchingWallExists = 12000;
 	info->searchingLeftWallValue = 32000;
 	info->searchingRightWallValue = 32000;
+
+	// Setup Straight Trap Profile PID's
+	PIDSetup(&info->lT1, 0.3, 0.0, 0.4);
+	PIDSetup(&info->lT2, 0.6, 0.0, 0.1);
+	PIDSetup(&info->lT3, 0.3, 0.0, 0.0);
+
+	PIDSetup(&info->rT1, 0.3, 0.0, 0.4);
+	PIDSetup(&info->rT2, 0.6, 0.0, 0.1);
+	PIDSetup(&info->rT3, 0.3, 0.0, 0.0);
+
+    info->linearProfile.rT1 = &info->rT1;
+    info->linearProfile.rT2 = &info->rT2;
+    info->linearProfile.rT3 = &info->rT3;
+    info->linearProfile.lT1 = &info->lT1;
+    info->linearProfile.lT2 = &info->lT2;
+    info->linearProfile.lT3 = &info->lT3;
+
+    // Setup Angular Velocity PID's
+    // TODO: Are these ever used?
+    PIDSetup(&info->glT1, 1.00, 0.0, 0.0);
+    PIDSetup(&info->glT2, 1.00, 0.0, 0.0);
+    PIDSetup(&info->glT3, 2.00, 0.0, 0.0);
+    PIDSetup(&info->grT1, 1.00, 0.0, 0.0);
+    PIDSetup(&info->grT2, 1.00, 0.0, 0.0);
+    PIDSetup(&info->grT3, 2.00, 0.0, 0.0);
+
+    info->angularProfile.lT1 = &info->glT1;
+    info->angularProfile.lT2 = &info->glT2;
+    info->angularProfile.lT3 = &info->glT3;
+    info->angularProfile.rT1 = &info->grT1;
+    info->angularProfile.rT2 = &info->grT2;
+    info->angularProfile.rT3 = &info->grT3;
+
+    // Setup Wall/Gyroscope PID's for straight corrections.
+    PIDSetup(&info->gyroPositionPID, 1.00, 0.00, 0.00);
+    PIDSetup(&info->wallPositionPID, 0.0003, 0.00, 0.00);
 }
 
 int main(void) 
@@ -199,72 +236,45 @@ int main(void)
     waitForHand();
     mouse->calibrateGyro();
 
-    // Set Motion Profile.
-    TrapProfile tmpProfile;
-    TrapProfile angProfile;
+    MouseInfo mouseInfo;
 
-    // Straight PID's
-    PID lT1, lT2, lT3, rT1, rT2, rT3;
-    PID gT1, gT2, gT3; // Angular velocity PID's
-
-    PIDSetup(&lT1, 0.3, 0.0, 0.4);
-    PIDSetup(&lT2, 0.6, 0.0, 0.1);
-    PIDSetup(&lT3, 0.3, 0.0, 0.0);
-
-    PIDSetup(&rT1, 0.3, 0.0, 0.4);
-    PIDSetup(&rT2, 0.6, 0.0, 0.1);
-    PIDSetup(&rT3, 0.3, 0.0, 0.0);
-
-    PIDSetup(&gT1, 0 , 0.0, 0.0);
-    PIDSetup(&gT2, 1, 0.0, 0.0);
-    PIDSetup(&gT3, 1, 0.0, 0.0);
-
-    tmpProfile.rT1 = &rT1;
-    tmpProfile.rT2 = &rT2;
-    tmpProfile.rT3 = &rT3;
-    tmpProfile.lT1 = &lT1;
-    tmpProfile.lT2 = &lT2;
-    tmpProfile.lT3 = &lT3;
-    angProfile.rT1 = angProfile.lT1 = &gT1;
-    angProfile.rT2 = angProfile.lT2 = &gT1;
-    angProfile.rT3 = angProfile.lT3 = &gT1;
-
-    TrapProfileReset(&tmpProfile, 0, 75, 75, 0.5, 19260*2);
-    TrapProfileReset(&angProfile, 0, 0, 0, 0, 0);
-    mouse->linearProfile = &tmpProfile;
-    mouse->angularProfile = &angProfile;
-
-    // TODO: Create Reset Function in Mouse
-    proc->resetSensor(SENSOR_ENCODER_LEFT);
-    proc->resetSensor(SENSOR_ENCODER_RIGHT);
-    mouse->previousEncoderValueLeft = 0;
-    mouse->previousEncoderValueRight = 0;
+    setupBasicMouseSettings(&mouseInfo);
 
     // Start at a higher speed so that accelerate happens sooner.
     mouse->motorValueLeft = 100;
     mouse->motorValueRight = 100;
 
     MotionInfo info;
-    info.length = 14200+20000*0;
-    info.startVelocity = 0;
-    info.maxVelocity = 75;
-    info.exitVelocity = 75;
-    info.linearProfile = &tmpProfile;
-    info.angularProfile = &angProfile;
     info.useWalls = 0;
 
-    MotionStraight(&info);
-    MotionDecel(&info);
+    MotionStraight(&mouseInfo, &info,
+    	0, 75, 75, 0.5, 14200+20000*0);
 
-    MotionTurn(-90, &tmpProfile, &angProfile);
+    MotionDecel(&mouseInfo, &info,
+    	75, 75, 0.5, 1650);
+
+    MotionTurn(&mouseInfo, &info,
+    	-90, 75, 0.01, 50);
+
+    info.useWalls = 0;
+    MotionStraight(&mouseInfo, &info,
+    	75, 75, 0, 0.5, 20000);
+
+    mouse->motorValueLeft = 0;
+    mouse->motorValueRight = 0;
+    proc->setMotor(LEFT_MOTOR, mouse->motorValueLeft);
+	proc->setMotor(RIGHT_MOTOR, mouse->motorValueRight);
+
+
+/*    MotionDecel(&info);
+
+    MotionTurn(-90, &mouseInfo);
 
     //MotionStraightWithWall(&info);
 
-    /* STOP */
-    info.length = 20000;
-    info.exitVelocity = 0;
-    info.startVelocity = 75;
-    MotionStraight(&info);
+    MotionStraight(&mouseInfo, &info,
+    	75, 75, 0, 0.5, 20000);*/
+
 /*    info.startVelocity = 75;
     info.length = 19260;
 

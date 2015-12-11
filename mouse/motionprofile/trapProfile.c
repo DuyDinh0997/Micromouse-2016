@@ -167,6 +167,7 @@ float TrapProfileUpdate(
 
         case MODE_T1:
         case MODE_T2:
+
             // Current Velocity
             this->currentVelocity = 
                 this->startVelocity + this->acceleration*this->elaspedTime;
@@ -211,8 +212,8 @@ float TrapProfileUpdate(
 
             this->timeDuringDecel++; 
 
-            // if (this->timeDuringDecel >= this->decelerationLength)
-            //    this->currentMode = MODE_FINISHED;
+            //if (this->timeDuringDecel >= this->decelerationLength)
+            //   this->currentMode = MODE_FINISHED;
 
             if (this->currentVelocity*dir <= this->exitVelocity*dir)
             	this->currentMode = MODE_FINISHED;

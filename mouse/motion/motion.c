@@ -1,23 +1,8 @@
-#include "processor.h"
-#include "mouse.h"
+#include "motion.h"
+#include "updateType.h"
 
-void executeMotion(MotionInfo* info)
-{
-    Mouse* mouse = SingletonMouse();
-    Processor* proc = SingletonProcessor();
-
-    while (mouse->motionType != 0)
-    {
-    	while (mouse->canUpdate == 0);
-		proc->setLED(LED_RIGHT_1, LED_ON);
-
-    	mouse->canUpdate = 0;
-    	mouse->motionType(info);
-    }
-    proc->setLED(LED_RIGHT_1, LED_OFF);
-}
-
-void MotionDecel(MotionInfo* this)
+void MotionDecel(MouseInfo* mouseInfo, MotionInfo* motionInfo,
+	int startVelocity, int exitVelocity, float accel, int length)
 {
 	Mouse* mouse = SingletonMouse();
     Processor* proc = SingletonProcessor();
@@ -28,20 +13,21 @@ void MotionDecel(MotionInfo* this)
     mouse->previousEncoderValueLeft = 0;
     mouse->previousEncoderValueRight = 0;
 
-    TrapProfileReset(this->linearProfile,
-    	this->startVelocity, this->maxVelocity, this->exitVelocity,
-		0.5, this->length);
+    TrapProfileReset(&mouseInfo->linearProfile,
+    	startVelocity, startVelocity, exitVelocity,
+		accel, length);
 
-	TrapProfileSetDecelOnly(this->linearProfile, this->maxVelocity);
+	TrapProfileSetDecelOnly(&mouseInfo->linearProfile, startVelocity);
 
-    TrapProfileReset(this->angularProfile,
+    TrapProfileReset(&mouseInfo->angularProfile,
     	0, 0, 0,
 		0, 0);
 
-    updateTypeDecel(this);
+    updateTypeDecel(mouseInfo, motionInfo);
 }
 
-void MotionStraight(MotionInfo* this)
+void MotionStraight(MouseInfo* mouseInfo, MotionInfo* motionInfo,
+	int startVelocity, int maxVelocity, int exitVelocity, float accel, int length)
 {
     Mouse* mouse = SingletonMouse();
     Processor* proc = SingletonProcessor();
@@ -52,40 +38,35 @@ void MotionStraight(MotionInfo* this)
     mouse->previousEncoderValueLeft = 0;
     mouse->previousEncoderValueRight = 0;
 
-    TrapProfileReset(this->linearProfile,
-    	this->startVelocity, this->maxVelocity, this->exitVelocity,
-		0.5, this->length);
+    TrapProfileReset(&mouseInfo->linearProfile,
+    	startVelocity, maxVelocity, exitVelocity,
+		accel, length);
 
-    TrapProfileReset(this->angularProfile,
+    TrapProfileReset(&mouseInfo->angularProfile,
     	0, 0, 0,
 		0, 0);
 
-    mouse->motionType = updateTypeBasic;
-    executeMotion(this);
+    updateTypeBasic(mouseInfo, motionInfo);
 }
 
-void MotionTurn(int degrees, TrapProfile* linearProfile, TrapProfile* angularProfile)
+void MotionTurn(MouseInfo* mouseInfo, MotionInfo* motionInfo,
+	int degrees, int velocity, float accel, int turnRadius)
 {
     Mouse* mouse = SingletonMouse();
-    Processor* proc = SingletonProcessor();
 
     int dir = (degrees < 0) ? -1 : 1;
 
     // Turn 90 deg
-    float linearVelocity = mouse->targetLinearVelocity = 75;
-    float turnRadius = 50; // In mm;
-    float angVelocityRadian = linearVelocity / (turnRadius * ENCODER_TICKS_PER_MM);
+    float angVelocityRadian = velocity / (turnRadius * ENCODER_TICKS_PER_MM);
     float angVelocityDegrees = angVelocityRadian * 57.2957795 * dir; // 57.295 is the scaling between radians and degrees.
-    float angularAcceleration = 0.01*dir;
-    float angularPosition = degrees-3*dir;
 
-    mouse->motorValueAngular = 30;
+    TrapProfileReset(&mouseInfo->angularProfile,
+    	0, angVelocityDegrees, 0, accel*dir, degrees-3*dir);
 
-    TrapProfileReset(angularProfile, 0, angVelocityDegrees, 0, angularAcceleration, angularPosition);
     mouse->motorValueLeft += 100*dir;
     mouse->motorValueRight -= 100*dir;
-    mouse->motionType = updateTypeTurn;
-    executeMotion(0);
+
+    updateTypeTurn(mouseInfo, 0);
 
     mouse->gyroPosition -= degrees;
 }

@@ -2,12 +2,10 @@
 #define __MOUSE_H__
 
 #include "processor.h"
-#include "buzzer/buzzer.h"
-#include "feedback/pid.h"
-#include "menu/menuStrip.h"
-#include "motion/updateType.h"
-#include "motion/motion.h"
 #include "motionprofile/trapProfile.h"
+#include "feedback/pid.h"
+#include "buzzer/buzzer.h"
+#include "menu/menuStrip.h"
 
 #define ENCODER_TICKS_PER_MM 107.0
 
@@ -19,24 +17,14 @@ typedef struct Mouse
 {
     BuzzerBuffer buzzer;
     Menu* menu;
-    void (*motionType)(MotionInfo* info);
-
-    TrapProfile* linearProfile;
-    TrapProfile* angularProfile;
 
     // TODO: These should be abstracted somewhere else probably
     int encoderVelocityLeft;
     int encoderVelocityRight;
     int previousEncoderValueLeft;
     int previousEncoderValueRight;
-    int targetLinearVelocity;
 
     int canUpdate;
-
-    PID motorPIDLeft;
-    PID motorPIDRight;
-    PID gyroVelocityPID;
-    PID gyroPositionPID;
 
     double motorValueLeft;
     double motorValueRight;
@@ -55,12 +43,13 @@ typedef struct Mouse
 // Settings for the mouse
 typedef struct MouseInfo
 {
+	double currentVelocity;
 	double straightVelocity;
 	double turningVelocity;
 	double turnInLength;
 	double turnOutLength;
 	double turningRadius;
-	double acceleration;
+	double straightAccel;
 	double turningAcceleration;
 
 	// The value when searching and there is a
@@ -72,12 +61,20 @@ typedef struct MouseInfo
 	// a straight the wall PID's should correct to.
 	double searchingLeftWallValue;
 	double searchingRightWallValue;
+	double searchingWallExists;
 
 	// PID's for trap profile.
 	PID lT1, lT2, lT3, rT1, rT2, rT3;
 
-	//
-	PID gT1, gT2, gT3;
+	// Angular velocity PID's
+	// TODO: Do these ever get used now?
+    PID glT1, glT2, glT3, grT1, grT2, grT3;
+
+	TrapProfile linearProfile;
+	TrapProfile angularProfile;
+
+	// PID's for straight correction.
+	PID gyroPositionPID, wallPositionPID;
 
 } MouseInfo;
 
