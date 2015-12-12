@@ -8,6 +8,7 @@
 typedef struct MotionInfo
 {
 	int useWalls;
+	int turnInPlace;
 
 } MotionInfo;
 
@@ -15,7 +16,7 @@ void MotionStraight(MouseInfo* mouseInfo, MotionInfo* motionInfo,
 	int startVelocity, int maxVelocity, int exitVelocity, float accel, int length);
 
 void MotionTurn(MouseInfo* mouseInfo, MotionInfo* motionInfo,
-	int degrees, int velocity, float accel, int radius);
+	int degrees, float velocity, float accel, int radius);
 
 void MotionDecel(MouseInfo* mouseInfo, MotionInfo* motionInfo,
 	int startVelocity, int exitVelocity, float accel, int length);

@@ -48,15 +48,25 @@ void MotionStraight(MouseInfo* mouseInfo, MotionInfo* motionInfo,
 }
 
 void MotionTurn(MouseInfo* mouseInfo, MotionInfo* motionInfo,
-	int degrees, int velocity, float accel, int turnRadius)
+	int degrees, float velocity, float accel, int turnRadius)
 {
     Mouse* mouse = SingletonMouse();
 
     int dir = (degrees < 0) ? -1 : 1;
 
-    // Turn 90 deg
-    float angVelocityRadian = velocity / (turnRadius * ENCODER_TICKS_PER_MM);
-    float angVelocityDegrees = angVelocityRadian * 57.2957795 * dir; // 57.295 is the scaling between radians and degrees.
+    float angVelocityDegrees = 0;
+
+    if (turnRadius == 0)
+    {
+    	angVelocityDegrees = velocity;
+    }
+    else
+    {
+		// TODO: How should turnRadius = 0 be handled?
+		// Turn 90 deg
+		float angVelocityRadian = velocity / (turnRadius * ENCODER_TICKS_PER_MM);
+		angVelocityDegrees = angVelocityRadian * 57.2957795 * dir; // 57.295 is the scaling between radians and degrees.
+    }
 
     TrapProfileReset(&mouseInfo->angularProfile,
     	0, angVelocityDegrees, 0, accel*dir, degrees-3*dir);
@@ -64,7 +74,7 @@ void MotionTurn(MouseInfo* mouseInfo, MotionInfo* motionInfo,
     mouse->motorValueLeft += 100*dir;
     mouse->motorValueRight -= 100*dir;
 
-    updateTypeTurn(mouseInfo, 0);
+    updateTypeTurn(mouseInfo, motionInfo);
 
     mouse->gyroPosition -= degrees;
 }

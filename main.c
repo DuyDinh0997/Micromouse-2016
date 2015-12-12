@@ -43,7 +43,11 @@ int main(void)
     Maze maze;
     RobotState state;
 
-    CallistoSearch(&maze, &state, &mouseInfo, &motionInfo);
+    SearchingFirstCell(&mouseInfo, &motionInfo);
+    SearchingTurn(-90, &mouseInfo, &motionInfo);
+    SearchingTurnAround(&mouseInfo, &motionInfo);
+
+    //CallistoSearch(&maze, &state, &mouseInfo, &motionInfo);
 
 /*    char * path = "flrf";
 
@@ -60,6 +64,7 @@ int main(void)
     proc->setMotor(LEFT_MOTOR, mouse->motorValueLeft);
 	proc->setMotor(RIGHT_MOTOR, mouse->motorValueRight);
 
+	proc->setScreenWithString("DONE");
     // Stop n stuff
     while(1==1);
 

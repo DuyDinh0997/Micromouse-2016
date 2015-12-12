@@ -196,7 +196,10 @@ void updateTypeTurn(MouseInfo* mouseInfo, MotionInfo* motionInfo)
 
 		mouse->motorValueAngular = angularVelocity*70;
 
-		float linearVelocity = 75;
+		float linearVelocity = mouseInfo->turningVelocity;
+
+		if (motionInfo->turnInPlace == 1)
+			linearVelocity = 0;
 
 		PID* pidLeft = TrapProfileGetLeftPID(&mouseInfo->angularProfile);
 		PID* pidRight = TrapProfileGetRightPID(&mouseInfo->angularProfile);
