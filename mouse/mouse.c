@@ -107,6 +107,12 @@ void MouseUpdate()
     int leftEncoderPos = proc->getSensor(SENSOR_ENCODER_LEFT);
     int rightEncoderPos = proc->getSensor(SENSOR_ENCODER_RIGHT);
 
+/*    proc->serialSendString("L,");
+    proc->serialSendInt(proc->getSensor(SENSOR_LEFT_3));
+    proc->serialSendString(",R,");
+    proc->serialSendInt(proc->getSensor(SENSOR_RIGHT_3));
+    proc->serialSendString("\n");*/
+
     mouse->encoderVelocityLeft =
     		leftEncoderPos - mouse->previousEncoderValueLeft;
 

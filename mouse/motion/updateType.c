@@ -7,10 +7,8 @@ static void waitForNextUpdate()
 	Mouse* mouse = SingletonMouse();
     Processor* proc = SingletonProcessor();
 
-   	proc->writeMemoryWithString("Waiting...\n");
 	while (mouse->canUpdate == 0);
    	mouse->canUpdate = 0;
-   	proc->writeMemoryWithString("DONE!\n");
 }
 
 void updateTypeBasic(MouseInfo* mouseInfo, MotionInfo* type)

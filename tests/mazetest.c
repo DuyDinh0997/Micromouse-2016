@@ -47,52 +47,6 @@ void importMaze(const char* fileName, Maze* maze)
 
         lc++;
     }
-    
- 
-   /* int lc = 0;
-    if (myfile.is_open())
-    {
-        while( getline(myfile, line))
-        {           
-            if (lc % 2 == 0)
-            {
-                for (int x = 0; x < 16; x++)
-                {
-                    if (line.at(x*4+1) != ' ')
-                    {
-                        maze->setWall(x, (int)lc/2, true, NORTH);
-                    }
-                }
-            }
-            else
-            {
-                for (int x = 0; x < 17; x++)
-                {
-                    if (line.at(x*4) != ' ')
-                    {
-                        maze->setWall(x, (int)lc/2, true, WEST);
-                    }
-                }
-            }
-
-            lc++;
-            
-        }
-        myfile.close();
-    }
-    else
-    {
-        std::cout << "Could not open maze" << std::endl;
-    }
-
-    int x, y;
-    for (x = 0; x < 17; x++)
-    {
-        for (y = 0; y < 17; y++)
-        {
-            maze->getCell(x, y)->explored = true;
-        }
-    }*/
 }
 
 int main()
@@ -102,30 +56,99 @@ int main()
     // Maze Init
     Maze maze;
     MazeReset(&maze);
-    importMaze("mazes/CAMM2015.txt", &maze);
-    MazePrint(&maze, 0, 0);
+    importMaze("mazes/test.txt", &maze);
+
+    Maze learningMaze;
+    MazeReset(&learningMaze);
 
     // Robot State Init 
     RobotState state;
-    MousePositionInit(&state.pos, NORTH, 0, 15);
-    state.targetXmin = 7;
-    state.targetYmin = 7;
-    state.targetXmax = 8;
-    state.targetYmax = 8;    
+    MousePositionInit(&state.pos, NORTH, 15, 15);
+    state.targetXmin = 13;
+    state.targetYmin = 13;
+    state.targetXmax = 13;
+    state.targetYmax = 13;    
 
     // Execute Flood Fill on current maze
     FloodFill floodFill;
     floodFill.state = &state;
     floodFill.maze = &maze;
+
     SimpleFloodFillSolve(&floodFill);
+    MazePrint(&maze, state.pos.x, state.pos.y);
+
+    floodFill.maze = &learningMaze;
+
+    MousePositionGoForward(&state.pos);
 
     char ortho[255]; 
-    PathGenOrtho(&maze, &state, ortho);
+    int lc = 0;
 
-    printf("Ortho = %s\n", ortho);
+    while (1==1)
+    {
+        int i; for (i = 0; i < 255; i++) ortho[i] = 0;
 
-    MazePrint(&maze, state.pos.x, state.pos.y);
-   
+        printf("---Adding Walls to Maze---\n");
+        int valueForward = MazeHasAWallRelative(&maze, 
+            state.pos.x, state.pos.y, state.pos.forwardDirection, FORWARD); 
+
+        int valueLeft = MazeHasAWallRelative(&maze, 
+            state.pos.x, state.pos.y, state.pos.forwardDirection, LEFT); 
+
+        int valueRight = MazeHasAWallRelative(&maze, 
+            state.pos.x, state.pos.y, state.pos.forwardDirection, RIGHT); 
+
+        printf("Walls = F:%d L:%d R:%d\n", valueForward, valueLeft, valueRight);
+
+        MazeSetWallRelative(&learningMaze, state.pos.x, state.pos.y, valueForward,
+            state.pos.forwardDirection, FORWARD); 
+
+        MazeSetWallRelative(&learningMaze, state.pos.x, state.pos.y, valueLeft,
+            state.pos.forwardDirection, LEFT); 
+
+        MazeSetWallRelative(&learningMaze, state.pos.x, state.pos.y, valueRight,
+            state.pos.forwardDirection, RIGHT); 
+
+        printf("---Flood Filling---\n");
+ 
+        SimpleFloodFillSolve(&floodFill);
+        MazePrint(&learningMaze, state.pos.x, state.pos.y);
+
+        printf("---Generating Path---\n");
+        PathGenOrtho(&learningMaze, &state, ortho);
+
+        // Move!
+        if (*ortho == 'f' || *ortho == 'F')
+        {
+            MousePositionGoForward(&state.pos);
+        } 
+        else if (*ortho == 'r' || *ortho == 'R')
+        {
+            MousePositionRotateRight(&state.pos); 
+            MousePositionGoForward(&state.pos);
+        }
+        else if (*ortho == 'l' || *ortho == 'L')
+        {
+            MousePositionRotateLeft(&state.pos); 
+            MousePositionGoForward(&state.pos);
+        }
+        else if (*ortho == 'b' || *ortho == 'B')
+        {
+            MousePositionGoBackward(&state.pos);
+        }
+
+        printf("New Position = %d, %d\n", state.pos.x, state.pos.y);
+  
+        printf("Ortho = %s\n", ortho);
+
+        if (state.pos.x >= state.targetXmin && state.pos.x <= state.targetXmax &&
+            state.pos.y >= state.targetYmin && state.pos.y <= state.targetYmax)
+            break;
+
+        if (lc++ > 15) break;       
+    } 
+
+
     printf("Done!\n");
     return 0;
 }

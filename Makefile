@@ -1,7 +1,7 @@
 # Sources
 
 SRCS = main.c callisto/*.c stm32f4xx_it.c system_stm32f4xx.c syscalls.c utils.c
-SRCS += boot/*.c mouse/menu/*.c 
+SRCS += boot/*.c mouse/menu/*.c maze/algorithm/*.c maze/generators/*.c maze/globals/*.c
 
 # Project name
 
@@ -49,7 +49,8 @@ ROOT=$(shell pwd)
 CFLAGS += -I. -Icallisto -Istm32f4 -Istm32f4/lib -Istm32f4/lib/inc -Iboot -Imouse -Imouse/celltocell
 CFLAGS += -Istm32f4/lib/inc/core -Istm32f4/lib/inc/peripherals  
 CFLAGS += -Imouse/feedback -Imouse/motionprofile -Imouse/menu -Imouse/motion
-
+CFLAGS += -Imaze -Imaze/algorithm -Imaze/generators -Imaze/globals
+ 
 SRCS += stm32f4/lib/startup_stm32f4xx.s # add startup file to build
 
 OBJS = $(SRCS:.c=.o)

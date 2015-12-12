@@ -43,11 +43,15 @@ typedef struct Maze
 
 void MazeInit(Maze*);
 void MazeReset(Maze*);
+int MazeGetDistance(Maze* this, int x, int y);
 void MazeResetDistances(Maze*);
 void MazeSetWall(Maze*, int x, int y, int value, Compass);
 int MazeHasAWall(Maze*, int x, int y, Compass compass);
 int MazeHasAWallRelative(Maze* this, int x, int y, Compass forwardDir, Direction relativeDir);
 MazeCell* MazeGetRelativeAdjacentCell(Maze* this, int x, int y, Compass forwardDir, Direction relativeDir);
+void MazeSetWallRelative(Maze* this,
+	int x, int y, int value,
+	Compass forwardDir, Direction relativeDir);
 
 #ifdef FAKE_MICROMOUSE
 void MazePrint(Maze* this, int tarx, int tary);

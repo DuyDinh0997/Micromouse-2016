@@ -47,6 +47,44 @@ void MazeResetDistances(Maze* this)
     }
 }
 
+void MazeSetWallRelative(Maze* this,
+	int x, int y, int value,
+	Compass forwardDir, Direction relativeDir)
+{
+	// Facing up
+    if (forwardDir == NORTH)
+    {
+        if (relativeDir == FORWARD) MazeSetWall(this, x, y, value, NORTH);
+        else if (relativeDir == RIGHT) MazeSetWall(this, x, y, value, EAST);
+        else if (relativeDir == LEFT) MazeSetWall(this, x, y, value, WEST);
+        else if (relativeDir == BACK) MazeSetWall(this, x, y, value, SOUTH);
+    }
+    // Facing down
+    else if (forwardDir == SOUTH)
+    {
+        if (relativeDir == FORWARD) MazeSetWall(this, x, y, value, SOUTH);
+        else if (relativeDir == RIGHT) MazeSetWall(this, x, y, value, WEST);
+        else if (relativeDir == LEFT) MazeSetWall(this, x, y, value, EAST);
+        else if (relativeDir == BACK) MazeSetWall(this, x, y, value, NORTH);
+    }
+    // Facing right
+    else if (forwardDir == EAST)
+    {
+        if (relativeDir == FORWARD) MazeSetWall(this, x, y, value, EAST);
+        else if (relativeDir == RIGHT) MazeSetWall(this, x, y, value, SOUTH);
+        else if (relativeDir == LEFT) MazeSetWall(this, x, y, value, NORTH);
+        else if (relativeDir == BACK) MazeSetWall(this, x, y, value, WEST);
+    }
+    // Facing left
+    else if (forwardDir == WEST)
+    {
+        if (relativeDir == FORWARD) MazeSetWall(this, x, y, value, WEST);
+        else if (relativeDir == RIGHT) MazeSetWall(this, x, y, value, NORTH);
+        else if (relativeDir == LEFT) MazeSetWall(this, x, y, value, SOUTH);
+        else if (relativeDir == BACK) MazeSetWall(this, x, y, value, EAST);
+    }
+}
+
 void MazeSetWall(Maze* this, int x, int y, int value, Compass compass)
 {
     if (compass == WEST)

@@ -8,6 +8,8 @@ void SearchingFirstCell(MouseInfo* mouseInfo, MotionInfo* motionInfo)
     mouse->motorValueLeft = 100;
     mouse->motorValueRight = 100;
 
+	motionInfo->useWalls = 1;
+
 	MotionStraight(mouseInfo, motionInfo,
     	0, mouseInfo->straightVelocity, mouseInfo->straightVelocity,
 		mouseInfo->straightAccel, mouseInfo->firstCellDistance);
@@ -15,6 +17,8 @@ void SearchingFirstCell(MouseInfo* mouseInfo, MotionInfo* motionInfo)
 
 void SearchingStraight(MouseInfo* mouseInfo, MotionInfo* motionInfo)
 {
+	motionInfo->useWalls = 0;
+
 	MotionStraight(mouseInfo, motionInfo,
     	mouseInfo->straightVelocity, mouseInfo->straightVelocity, mouseInfo->straightVelocity,
 		mouseInfo->straightAccel, mouseInfo->normalCellDistance);

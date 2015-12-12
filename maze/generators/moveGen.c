@@ -28,9 +28,11 @@ int isNotEqualDistance(MazeCell* cell1, MazeCell* cell2)
 
     return cell1->distance != cell2->distance ? 1 : 0;
 }
-
+#include "processor.h"
 char MoveGenGetNextMove(Maze* this, int x, int y, Compass forwardDir)
 {
+	Processor* proc = SingletonProcessor();
+
     int isWallFront = MazeHasAWallRelative(this, x, y, forwardDir, FORWARD);
     int isWallLeft = MazeHasAWallRelative(this, x, y, forwardDir, LEFT);
     int isWallRight = MazeHasAWallRelative(this, x, y, forwardDir, RIGHT);
@@ -50,14 +52,8 @@ char MoveGenGetNextMove(Maze* this, int x, int y, Compass forwardDir)
     char isExploredLeft = isExplored(leftCell);
     char isExploredRight = isExplored(rightCell);
 
+
     if (isWallLeft && isWallFront && isWallRight && !isWallBack)
-    {
-        return 'b';
-    }
-    else if (!isWallBack
-        &&(isOptimal(backCell, forwardCell) || isWallFront)
-        && (isOptimal(backCell, leftCell) || isWallLeft)
-        && (isOptimal(backCell, rightCell) || isWallRight))
     {
         return 'b';
     }
@@ -117,6 +113,16 @@ char MoveGenGetNextMove(Maze* this, int x, int y, Compass forwardDir)
             return 'R';
         else
             return 'r';
+    }
+    else if (!isWallBack
+        &&(isOptimal(backCell, forwardCell) || isWallFront)
+        && (isOptimal(backCell, leftCell) || isWallLeft)
+        && (isOptimal(backCell, rightCell) || isWallRight))
+    {
+    	//printf("backCell = %d, frontCell = %d\n", forwardCell->distance, backCell->distance);
+    	//printf("isWall = %d %d %d\n", isWallFront, isWallLeft, isWallRight);
+    	//printf("Back 2\n");
+        return 'b';
     }
     else
     {

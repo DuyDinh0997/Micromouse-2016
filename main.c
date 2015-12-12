@@ -4,6 +4,9 @@
 #include "callistoMenu.h"
 #include "callistoSerial.h"
 #include "cellToCell.h"
+#include "callistoMovement.h"
+#include "maze.h"
+#include "robotState.h"
 
 void waitForHand();
 void setupBasicMouseSettings(MouseInfo* info);
@@ -33,14 +36,24 @@ int main(void)
 	mouseInfo.turnInLength = 1650;
 	mouseInfo.turnOutLength = 1200;
 
-    setupBasicMouseSettings(&mouseInfo);
-
     motionInfo.useWalls = 0;
 
+    setupBasicMouseSettings(&mouseInfo);
+
+    Maze maze;
+    RobotState state;
+
+    CallistoSearch(&maze, &state, &mouseInfo, &motionInfo);
+
+/*    char * path = "flrf";
+
     SearchingFirstCell(&mouseInfo, &motionInfo);
-    SearchingStraight(&mouseInfo, &motionInfo);
-    SearchingTurn(-90, &mouseInfo, &motionInfo);
-    SearchingStraight(&mouseInfo, &motionInfo);
+
+    while (*path != 0)
+    {
+    	CallistoExecuteMovement(*path, &mouseInfo, &motionInfo);
+    	path++;
+    }*/
 
     mouse->motorValueLeft = 0;
     mouse->motorValueRight = 0;

@@ -23,10 +23,29 @@ void MousePositionGoForward(MousePosition* this)
 
 void MousePositionGoBackward(MousePosition* this)
 {
-    if (this->forwardDirection == SOUTH) this->y -= 1;
-    if (this->forwardDirection == NORTH) this->y += 1;
-    if (this->forwardDirection == EAST)  this->x -= 1;
-    if (this->forwardDirection == WEST)  this->x += 1;
+    if (this->forwardDirection == SOUTH)
+    {
+    	this->forwardDirection = NORTH;
+    	this->y -= 1;
+    }
+
+    if (this->forwardDirection == NORTH)
+    {
+    	this->forwardDirection = SOUTH;
+    	this->y += 1;
+    }
+
+    if (this->forwardDirection == EAST)
+    {
+    	this->x -= 1;
+    	this->forwardDirection = WEST;
+    }
+
+    if (this->forwardDirection == WEST)
+    {
+    	this->forwardDirection = EAST;
+    	this->x += 1;
+    }
 
     if (this->y < 0) this->y = 0;
     if (this->y > 15) this->y = 15;
