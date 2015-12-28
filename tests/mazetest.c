@@ -26,6 +26,8 @@ void importMaze(const char* fileName, Maze* maze)
             int x;
             for (x = 0; x < 16; x++)
             {
+               	maze->maze[x][(int)lc/2].explored = 1;
+
                 if (line[x*4+1] != ' ')
                 {
                     maze->maze[x][(int)lc/2].northWall = 1;
@@ -38,6 +40,8 @@ void importMaze(const char* fileName, Maze* maze)
             int x;
             for (x = 0; x < 17; x++)
             {
+               	maze->maze[x][(int)lc/2].explored = 1;
+
                 if (line[x*4] != ' ')
                 {
                     maze->maze[x][(int)lc/2].westWall = 1;
@@ -53,8 +57,34 @@ int main()
 {
     printf("Maze Test\n");
 
-    // Maze Init
     Maze maze;
+    MazeReset(&maze);
+    importMaze("mazes/Region1_2015.txt", &maze);
+
+    RobotState state;
+    MousePositionInit(&state.pos, NORTH, 0, 15);
+    state.targetXmin = 7;
+    state.targetYmin = 7;
+    state.targetXmax = 8;
+    state.targetYmax = 8;    
+
+    // Execute Flood Fill on current maze
+    FloodFill floodFill;
+    floodFill.state = &state;
+    floodFill.maze = &maze;
+
+    SimpleFloodFillSolve(&floodFill);
+    MazePrint(&maze, state.pos.x, state.pos.y);
+
+    char ortho[255];
+    char diag[255];
+    PathGenOrtho(&maze, &state, ortho);
+    PathGenDiag(ortho, diag);
+    
+    printf("%s\n", ortho);
+    printf("%s\n", diag);
+    // Maze Init
+    /*Maze maze;
     MazeReset(&maze);
     importMaze("mazes/test.txt", &maze);
 
@@ -148,6 +178,7 @@ int main()
         if (lc++ > 15) break;       
     } 
 
+    */
 
     printf("Done!\n");
     return 0;

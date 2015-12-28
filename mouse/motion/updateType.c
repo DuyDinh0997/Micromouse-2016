@@ -5,17 +5,18 @@
 static void waitForNextUpdate()
 {
 	Mouse* mouse = SingletonMouse();
-    Processor* proc = SingletonProcessor();
 
 	while (mouse->canUpdate == 0);
    	mouse->canUpdate = 0;
 }
 
-void updateTypeBasic(MouseInfo* mouseInfo, MotionInfo* type)
+void updateTypeBasic(MouseInfo* mouseInfo, MotionInfo* motionInfo)
 {
 	Mouse* mouse = SingletonMouse();
     Processor* proc = SingletonProcessor();
     int previousMode = 0;
+
+    int postUp = 0;
 
     while (1==1)
     {
@@ -34,7 +35,7 @@ void updateTypeBasic(MouseInfo* mouseInfo, MotionInfo* type)
 		int gyroEffect = 0;
 
 		if (rightWall > mouseInfo->searchingWallExists &&
-			type->useWalls == 1)
+			motionInfo->useWalls == 1)
 		{
 			wallEffect = PIDUpdate(&mouseInfo->wallPositionPID,
 				1, mouseInfo->searchingRightWallValue - rightWall);
@@ -51,6 +52,9 @@ void updateTypeBasic(MouseInfo* mouseInfo, MotionInfo* type)
 			proc->getSensor(SENSOR_ENCODER_LEFT),
 			mouse->encoderVelocityLeft, 1);
 
+		motionInfo->currentVelocity =
+			(mouse->encoderVelocityLeft + mouse->encoderVelocityRight)/2;
+
 		PID* pidLeft = TrapProfileGetLeftPID(&mouseInfo->linearProfile);
 		PID* pidRight = TrapProfileGetRightPID(&mouseInfo->linearProfile);
 
@@ -65,6 +69,16 @@ void updateTypeBasic(MouseInfo* mouseInfo, MotionInfo* type)
 		if (mouseInfo->linearProfile.currentMode == MODE_T3 && previousMode == MODE_T2) {
 			mouse->motorValueLeft -= 50;
 			mouse->motorValueRight -= 50;
+		}
+
+		if (mouseInfo->linearProfile.currentMode == MODE_T3 && previousMode == MODE_T1) {
+			mouse->motorValueLeft -= 100;
+			mouse->motorValueRight -= 100;
+		}
+
+		if (mouseInfo->linearProfile.currentMode == MODE_FINISHED && previousMode == MODE_T3) {
+			mouse->motorValueLeft += 200;
+			mouse->motorValueRight += 200;
 		}
 
 		if (mouseInfo->linearProfile.currentMode == MODE_T1)
@@ -92,15 +106,48 @@ void updateTypeBasic(MouseInfo* mouseInfo, MotionInfo* type)
 		proc->setMotor(LEFT_MOTOR, mouse->motorValueLeft);
 		proc->setMotor(RIGHT_MOTOR, mouse->motorValueRight);
 
-		if (mouseInfo->linearProfile.currentMode == MODE_FINISHED)
+		if (mouseInfo->linearProfile.currentMode == MODE_FINISHED
+			&& motionInfo->endOnPost == 0)
 			break;
+
+		// Look for left post
+		if (mouseInfo->linearProfile.currentMode == MODE_FINISHED
+			&& motionInfo->endOnPost < 0)
+		{
+			if (postUp == 0)
+			{
+				if (proc->getSensor(SENSOR_LEFT_3) > 12000)
+					postUp = 1;
+			}
+			else
+			{
+				if (proc->getSensor(SENSOR_LEFT_3) < 10000)
+					break;
+			}
+		}
+		// Look for right post
+		else if (mouseInfo->linearProfile.currentMode == MODE_FINISHED
+			&& motionInfo->endOnPost > 0)
+		{
+			if (postUp == 0)
+			{
+				if (proc->getSensor(SENSOR_RIGHT_3) > 12000)
+					postUp = 1;
+			}
+			else
+			{
+				if (proc->getSensor(SENSOR_RIGHT_3) < 10000)
+					break;
+			}
+		}
+
     }
 }
 
 
 // Decel Only
 // If useWalls = 1, this will look for a wall in front.
-void updateTypeDecel(MouseInfo* mouseInfo, MotionInfo* this)
+void updateTypeDecel(MouseInfo* mouseInfo, MotionInfo* motionInfo)
 {
 	Mouse* mouse = SingletonMouse();
     Processor* proc = SingletonProcessor();
@@ -140,6 +187,9 @@ void updateTypeDecel(MouseInfo* mouseInfo, MotionInfo* this)
 			&mouseInfo->linearProfile,
 			proc->getSensor(SENSOR_ENCODER_LEFT),
 			mouse->encoderVelocityLeft, 1);
+
+		motionInfo->currentVelocity =
+			(mouse->encoderVelocityLeft + mouse->encoderVelocityRight)/2;
 
 		PID* pidLeft = TrapProfileGetLeftPID(&mouseInfo->linearProfile);
 		PID* pidRight = TrapProfileGetRightPID(&mouseInfo->linearProfile);
@@ -200,6 +250,9 @@ void updateTypeTurn(MouseInfo* mouseInfo, MotionInfo* motionInfo)
 
 		if (motionInfo->turnInPlace == 1)
 			linearVelocity = 0;
+
+		motionInfo->currentVelocity =
+			(mouse->encoderVelocityLeft + mouse->encoderVelocityRight)/2;
 
 		PID* pidLeft = TrapProfileGetLeftPID(&mouseInfo->angularProfile);
 		PID* pidRight = TrapProfileGetRightPID(&mouseInfo->angularProfile);

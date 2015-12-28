@@ -36,16 +36,67 @@ int main(void)
 	mouseInfo.turnInLength = 1650;
 	mouseInfo.turnOutLength = 1200;
 
+	mouseInfo.fastStraightSpeed = 150;
+	mouseInfo.fastStraightAccel = 0.5;
+	mouseInfo.fastDiagonalSpeed = 150;
+	mouseInfo.fastDiagonalAccel = 0.5;
+
+	mouseInfo.fast90.radius = 90;
+	mouseInfo.fast90.accel = 0.01;
+	mouseInfo.fast90.speed = 75;
+	mouseInfo.fast90.deg = 90;
+	mouseInfo.fast90.inLength = 5500;
+
+	mouseInfo.fastTight90.radius = 50;
+	mouseInfo.fastTight90.accel = 0.01;
+	mouseInfo.fastTight90.speed = 75;
+	mouseInfo.fastTight90.deg = 90;
+
+	mouseInfo.fast45.radius = 90;
+	mouseInfo.fast45.accel = 0.01;
+	mouseInfo.fast45.speed = 75;
+	mouseInfo.fast45.deg = 45;
+	mouseInfo.fast45.inLength = 700;
+	mouseInfo.fast45.inLength45 = 4000;
+
+	mouseInfo.fast135.deg = 135;
+	mouseInfo.fast135.radius = 70;
+	mouseInfo.fast135.speed = 75;
+	mouseInfo.fast135.accel = 0.01;
+
     motionInfo.useWalls = 0;
+    motionInfo.currentVelocity = 0;
+    motionInfo.is45 = 0;
 
     setupBasicMouseSettings(&mouseInfo);
 
     Maze maze;
     RobotState state;
 
-    SearchingFirstCell(&mouseInfo, &motionInfo);
-    SearchingTurn(-90, &mouseInfo, &motionInfo);
-    SearchingTurnAround(&mouseInfo, &motionInfo);
+    /*FastStraight(&mouseInfo, &motionInfo, 1, 0, '>');
+    FastTurn(&mouseInfo, &motionInfo, '>');
+    FastDiagonal(&mouseInfo, &motionInfo, 1, '>', '^');
+    FastTurn(&mouseInfo, &motionInfo, '^');
+    FastDiagonal(&mouseInfo, &motionInfo, 1, '^', 'v');
+    FastTurn(&mouseInfo, &motionInfo, 'v');
+    FastDiagonal(&mouseInfo, &motionInfo, 1, 'v', '^');
+    FastTurn(&mouseInfo, &motionInfo, '^');
+    FastDiagonal(&mouseInfo, &motionInfo, 1, '^', '\\');
+    FastTurn(&mouseInfo, &motionInfo, '\\');
+    FastStraight(&mouseInfo, &motionInfo, 1, '^', '>');
+    FastTurn(&mouseInfo, &motionInfo, '>');
+    FastDiagonal(&mouseInfo, &motionInfo, 3, '>', '>');
+    FastTurn(&mouseInfo, &motionInfo, '>');
+    FastStraight(&mouseInfo, &motionInfo, 1, '>', 0);*/
+
+    FastStraight(&mouseInfo, &motionInfo, 1, 0, '>', 1);
+    FastTurn(&mouseInfo, &motionInfo, '>');
+    FastDiagonal(&mouseInfo, &motionInfo, 3, '>', '<', 1);
+    FastTurn(&mouseInfo, &motionInfo, '<');
+    FastStraight(&mouseInfo, &motionInfo, 1, 0, '<', 0);
+    /*FastDiagonal(&mouseInfo, &motionInfo, 2, '<', '<');
+    FastTurn(&mouseInfo, &motionInfo, '<');
+    FastStraight(&mouseInfo, &motionInfo, 1, '<', 0);*/
 
     //CallistoSearch(&maze, &state, &mouseInfo, &motionInfo);
 
@@ -89,6 +140,7 @@ void setupBasicMouseSettings(MouseInfo* info)
 	info->searchingRightWallValue = 32000;
 	info->firstCellDistance = 14200;
 	info->normalCellDistance = 20000;
+	info->diagonalCellDistance = 14000;
 
 	// Setup Straight Trap Profile PID's
 	PIDSetup(&info->lT1, 0.3, 0.0, 0.4);

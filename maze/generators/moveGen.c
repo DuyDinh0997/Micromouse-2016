@@ -55,7 +55,7 @@ char MoveGenGetNextMove(Maze* this, int x, int y, Compass forwardDir)
 
     if (isWallLeft && isWallFront && isWallRight && !isWallBack)
     {
-        return 'b';
+        return 'B';
     }
     // Move Forward
     // - If there are no wall in front of the mouse

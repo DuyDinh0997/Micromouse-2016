@@ -40,10 +40,22 @@ typedef struct Mouse
     void (*calibrateGyro)();
 } Mouse;
 
+typedef struct TurningSettings {
+	double speed;
+	double accel;
+	double radius;
+	double inLength;
+	double inLength45;
+	double deg;
+
+} TurningSettings;
+
+TurningSettings* SingletonFirstCell();
+
 // Settings for the mouse
 typedef struct MouseInfo
 {
-	double currentVelocity;
+	// Searching Parameters
 	double straightVelocity;
 	double turningVelocity;
 	double turnInLength;
@@ -52,11 +64,24 @@ typedef struct MouseInfo
 	double straightAccel;
 	double turningAcceleration;
 
+	// Speed Run Parameters
+	double fastStraightSpeed;
+	double fastDiagonalSpeed;
+	double fastStraightAccel;
+	double fastDiagonalAccel;
+
+	TurningSettings fast45;
+	TurningSettings fast90;
+	TurningSettings fast135;
+	TurningSettings fast180;
+	TurningSettings fastTight90;
+
 	// The distance the mouse needs to move out of the very first cell.
 	double firstCellDistance;
 
 	// The distance to go straight on any given cell.
 	double normalCellDistance;
+	double diagonalCellDistance;
 
 	// The value when searching and there is a
 	// wall in front where the mouse should

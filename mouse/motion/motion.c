@@ -62,7 +62,6 @@ void MotionTurn(MouseInfo* mouseInfo, MotionInfo* motionInfo,
     }
     else
     {
-		// TODO: How should turnRadius = 0 be handled?
 		// Turn 90 deg
 		float angVelocityRadian = velocity / (turnRadius * ENCODER_TICKS_PER_MM);
 		angVelocityDegrees = angVelocityRadian * 57.2957795 * dir; // 57.295 is the scaling between radians and degrees.

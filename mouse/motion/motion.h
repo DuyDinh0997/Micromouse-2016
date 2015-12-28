@@ -9,7 +9,9 @@ typedef struct MotionInfo
 {
 	int useWalls;
 	int turnInPlace;
-
+	int currentVelocity;
+	int is45;
+	int endOnPost;
 } MotionInfo;
 
 void MotionStraight(MouseInfo* mouseInfo, MotionInfo* motionInfo,

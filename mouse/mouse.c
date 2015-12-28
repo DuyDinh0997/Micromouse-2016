@@ -42,6 +42,20 @@ Mouse* SingletonMouse()
     return mouse;
 }
 
+TurningSettings* SingletonFirstCell()
+{
+	static TurningSettings* set;
+
+	if (set == 0)
+	{
+		set = malloc(sizeof(TurningSettings));
+		set->accel = 0;
+		set->speed = 0;
+		set->radius = 0;
+	}
+
+	return set;
+}
 void MouseUpdate();
 
 void MouseInitiate()
