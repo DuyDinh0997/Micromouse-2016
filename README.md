@@ -1,5 +1,6 @@
 <h1>Micromouse Callisto 2015/2016</h2>
  - Author: Justin Marple (jmarple@umass.edu)
+ - NOTE: This code is not complete and has a few key parts that are incomplete (in particular, the diagonal solver).  It does contain completed maze solving code, code for controlling the stm32f4 processor and the hardware on the mouse, and PID/Motion-control code.  Feel free to use the code as you wish.   
 
 Quick Overview:
  - boot/ 
